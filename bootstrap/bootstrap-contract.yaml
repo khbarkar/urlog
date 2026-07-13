@@ -1,0 +1,110 @@
+apiVersion: urlog.io/v1alpha1
+kind: BootstrapContract
+metadata:
+  name: first-install
+spec:
+  bootstrap_operator:
+    type: human-or-automation
+    identity_ref: identity://customer/bootstrap-operator
+    approval_required: true
+
+  deployment:
+    mode: kubernetes
+    runtime:
+      urlog_api: deployment
+      urlog_worker: deployment
+      urlog_operator: deployment
+    stateful_dependencies:
+      - redpanda
+      - clickhouse
+      - opensearch
+      - object-storage
+    stateless_rule: urlog-services-must-not-require-local-pod-state
+
+  llm:
+    provider: customer-provided
+    endpoint_ref: secret://customer/llm/endpoint
+    credential_ref: secret://customer/llm/credential
+    authority: propose_only
+    secret_exposure: forbidden
+    allowed_context:
+      - repository_metadata
+      - non_secret_manifests
+      - contract_schemas
+      - policy_results
+      - redacted_logs
+
+  source_control:
+    provider: github
+    repository: https://github.com/example/forgeboard-paas
+    branch: main
+    credential_ref: secret://customer/source-control/forgeboard-token
+    permissions:
+      - read_repository_metadata
+      - read_source
+      - read_pull_requests
+      - read_commit_status
+    forbidden_permissions:
+      - write_source
+      - delete_repository
+      - administer_repository
+
+  secrets:
+    backend: cloud-secret-manager
+    access_mode: mcp-or-workload-identity
+    adapter_ref: mcp://aws/secrets-manager
+    role_ref: arn:aws:iam::123456789012:role/urlog-bootstrap
+    allowed_paths:
+      - secret://aws-secrets-manager/eu-north-1/urlog/forgeboard/*
+    rules:
+      cleartext_config: forbidden
+      cleartext_logs: forbidden
+      prompt_exposure: forbidden
+      report_values: forbidden
+      runtime_resolution_only: required
+
+  infrastructure:
+    primary_runtime: kubernetes
+    access_ref: secret://customer/kubernetes/forgeboard-kubeconfig
+    scope: namespace
+    namespace: urlog-integration
+    permissions:
+      - read_cluster_capabilities
+      - read_namespaced_resources
+      - create_ephemeral_namespace
+      - create_build_jobs
+      - read_pod_logs
+      - cleanup_ephemeral_resources
+    forbidden_permissions:
+      - mutate_production_workloads
+      - delete_persistent_volumes
+      - change_cluster_rbac
+      - install_esxi
+
+  integration_system:
+    mode: observe_only
+    install_requested: false
+    existing_system:
+      provider: github-actions
+      access_ref: secret://customer/cicd/github-actions-token
+      allowed_operations:
+        - read_workflows
+        - read_runs
+        - read_artifacts
+        - read_test_results
+      forbidden_operations:
+        - trigger_release
+        - edit_workflows
+        - change_secrets
+    install_system:
+      provider: unset
+      requires_explicit_tool_choice: true
+
+  first_target:
+    target_id: forgeboard-paas
+    run_mode: observe_only
+    output:
+      readiness_packet: required
+      eye_report: required
+      debt_audit_record: required
+

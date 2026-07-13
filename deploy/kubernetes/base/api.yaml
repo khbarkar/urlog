@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urlog-api
+  labels:
+    app.kubernetes.io/name: urlog-api
+    app.kubernetes.io/part-of: urlog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: urlog-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: urlog-api
+        app.kubernetes.io/part-of: urlog
+    spec:
+      serviceAccountName: urlog-api
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: ghcr.io/khbarkar/urlog-api:dev
+          imagePullPolicy: IfNotPresent
+          args: ["serve", "--config=/etc/urlog/urlog.yaml"]
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: URLOG_MODE
+              value: kubernetes
+          volumeMounts:
+            - name: config
+              mountPath: /etc/urlog
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+      volumes:
+        - name: config
+          configMap:
+            name: urlog-config
+

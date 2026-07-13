@@ -6,6 +6,10 @@
   <title>Urlog Samples</title>
   <style>
     body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101214; color: #eef2f4; }
+    .topbar { height: 60px; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid #2a333a; background: #07100b; }
+    .repo-link { display: inline-flex; align-items: center; gap: 10px; color: #eef2f4; text-decoration: none; font-weight: 800; }
+    .repo-link img { width: 32px; height: 32px; object-fit: contain; }
+    .repo-link:hover span { text-decoration: underline; }
     main { max-width: 980px; margin: 0 auto; padding: 40px 20px; display: grid; gap: 22px; }
     h1, h2, p { margin: 0; }
     p { color: #aeb9bf; line-height: 1.55; }
@@ -18,6 +22,12 @@
   </style>
 </head>
 <body>
+  <header class="topbar">
+    <a class="repo-link" href="https://github.com/khbarkar/urlog" aria-label="Open Urlog repository">
+      <img src="logo.png" alt="">
+      <span>Urlog</span>
+    </a>
+  </header>
   <main>
     <header>
       <h1>Urlog Samples</h1>

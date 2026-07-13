@@ -1,0 +1,69 @@
+apiVersion: urlog.io/v1alpha1
+kind: BootstrapContract
+metadata:
+  name: forgeboard-first-install
+spec:
+  bootstrap_operator:
+    type: human
+    identity_ref: identity://forgeboard/platform-admin
+    approval_required: true
+
+  deployment:
+    mode: kubernetes
+    namespace: urlog-system
+    urlog_services:
+      - urlog-api
+      - urlog-worker
+      - urlog-operator
+
+  llm:
+    provider: customer-provided
+    endpoint_ref: secret://aws-secrets-manager/eu-north-1/urlog/llm/endpoint
+    credential_ref: secret://aws-secrets-manager/eu-north-1/urlog/llm/api-key
+    authority: propose_only
+
+  source_control:
+    provider: github
+    repository: https://github.com/example/forgeboard-paas
+    branch: main
+    credential_ref: secret://aws-secrets-manager/eu-north-1/urlog/forgeboard/github-token
+
+  secrets:
+    backend: aws-secrets-manager
+    access_mode: mcp
+    adapter_ref: mcp://aws/secrets-manager
+    role_ref: arn:aws:iam::123456789012:role/urlog-bootstrap
+    allowed_paths:
+      - secret://aws-secrets-manager/eu-north-1/urlog/forgeboard/*
+      - secret://aws-secrets-manager/eu-north-1/urlog/llm/*
+
+  infrastructure:
+    primary_runtime: kubernetes
+    access_ref: secret://aws-secrets-manager/eu-north-1/urlog/forgeboard/kubeconfig
+    cluster_name: forgeboard-dev
+    namespace: forgeboard-integration
+    scope: namespace
+
+  integration_system:
+    mode: existing
+    existing_system:
+      provider: github-actions
+      access_ref: secret://aws-secrets-manager/eu-north-1/urlog/forgeboard/github-actions-token
+      allowed_operations:
+        - read_workflows
+        - read_runs
+        - read_artifacts
+        - read_test_results
+        - trigger_integration_tests
+    install_system:
+      provider: unset
+      enabled: false
+
+  first_target:
+    target_id: forgeboard-paas
+    run_mode: integration
+    outputs:
+      - readiness_packet
+      - eye_report
+      - debt_audit_record
+

@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+nameSuffix: -airgap
+
+images:
+  - name: ghcr.io/khbarkar/urlog-api
+    newName: registry.local/urlog/urlog-api
+    newTag: dev
+  - name: ghcr.io/khbarkar/urlog-worker
+    newName: registry.local/urlog/urlog-worker
+    newTag: dev
+  - name: ghcr.io/khbarkar/urlog-operator
+    newName: registry.local/urlog/urlog-operator
+    newTag: dev
+

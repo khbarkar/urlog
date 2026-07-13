@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: urlog-config
+  labels:
+    app.kubernetes.io/name: urlog
+    app.kubernetes.io/part-of: urlog
+data:
+  urlog.yaml: |
+    apiVersion: urlog.io/v1alpha1
+    kind: RuntimeConfig
+    metadata:
+      name: default
+    spec:
+      mode: kubernetes
+      bootstrapContractRef: config://bootstrap/bootstrap-contract.yaml
+      secrets:
+        backend: unset
+        cleartextValues: forbidden
+      llm:
+        provider: unset
+        authority: propose_only
+      storage:
+        redpanda:
+          brokersRef: config://dependencies/redpanda
+        clickhouse:
+          dsnRef: secret://urlog/storage/clickhouse-dsn
+        opensearch:
+          endpointRef: secret://urlog/storage/opensearch-endpoint
+        objectStorage:
+          endpointRef: secret://urlog/storage/object-storage-endpoint
+

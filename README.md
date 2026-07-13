@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="Urlog" width="800">
+  <img src="logo.png" alt="Urlog" width="540">
 </p>
 
 <h1 align="center">Urlog</h1>
@@ -22,6 +22,8 @@ The long-term product shape is autonomous operations with explicit boundaries: o
 ## Step 1 — Contracts Before Models
 
 Urlog starts with contracts, not a model choice. The LLM is pluggable and may plan the work, but the system only acts through machine-readable contracts.
+
+First-time installation starts with the bootstrap contract in [`bootstrap/`](bootstrap/). Bootstrap defines the initial trust handoff: LLM access, repository access, secret backend, infrastructure access, and whether Urlog should install an integration system or connect to an existing one. Config contains secret references only; secret values must never appear in config, logs, prompts, traces, reports, or readiness packets.
 
 For Integration, those contracts live in [`integration/contracts/`](integration/contracts/):
 
@@ -74,16 +76,27 @@ docker compose -f deploy/docker-compose.dev.yml up   # ClickHouse + Redpanda + o
 
 Point any OTel GenAI-instrumented app (OpenLLMetry, OpenInference) at `localhost:4317` and spans start flowing.
 
+## Default deployment
+
+Urlog itself runs on Kubernetes by default through Kustomize:
+
+```bash
+kubectl apply -k deploy/kubernetes/overlays/k3s
+```
+
+The Urlog services are stateless `Deployment` resources: `urlog-api`, `urlog-worker`, and `urlog-operator`. Stateful components such as Redpanda, ClickHouse, OpenSearch, and object storage are dependencies, not local pod state for Urlog.
+
 ## Repository layout
 
 ```
 schema/    the contract — protobuf, versioned, breaking changes need their own MR
+bootstrap/ first-time install contracts, secret backend catalog, and target examples
 integration/      integration
 delivery/    deployment
 debt/     troubleshooting
 eye/      reporting and monitor
 secflow/  optional security flow
-deploy/    dev compose stack + Helm chart (EU-first, self-hostable)
+deploy/    Kustomize install, observability sketches, and later packaged deployments
 assets/    brand — SVG sources of record
 examples/  ForgeBoard PaaS sample system
 learning/  tutorial tracks for Phase 0 learning

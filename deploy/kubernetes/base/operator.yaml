@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urlog-operator
+  labels:
+    app.kubernetes.io/name: urlog-operator
+    app.kubernetes.io/part-of: urlog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: urlog-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: urlog-operator
+        app.kubernetes.io/part-of: urlog
+    spec:
+      serviceAccountName: urlog-operator
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: operator
+          image: ghcr.io/khbarkar/urlog-operator:dev
+          imagePullPolicy: IfNotPresent
+          args: ["operator", "--config=/etc/urlog/urlog.yaml"]
+          env:
+            - name: URLOG_MODE
+              value: kubernetes
+          volumeMounts:
+            - name: config
+              mountPath: /etc/urlog
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+      volumes:
+        - name: config
+          configMap:
+            name: urlog-config
+

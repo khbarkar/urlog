@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: urlog-system
+  labels:
+    app.kubernetes.io/name: urlog
+    app.kubernetes.io/part-of: urlog
+

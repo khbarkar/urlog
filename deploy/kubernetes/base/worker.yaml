@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urlog-worker
+  labels:
+    app.kubernetes.io/name: urlog-worker
+    app.kubernetes.io/part-of: urlog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: urlog-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: urlog-worker
+        app.kubernetes.io/part-of: urlog
+    spec:
+      serviceAccountName: urlog-worker
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: ghcr.io/khbarkar/urlog-worker:dev
+          imagePullPolicy: IfNotPresent
+          args: ["worker", "--config=/etc/urlog/urlog.yaml"]
+          env:
+            - name: URLOG_MODE
+              value: kubernetes
+          volumeMounts:
+            - name: config
+              mountPath: /etc/urlog
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+      volumes:
+        - name: config
+          configMap:
+            name: urlog-config
+
