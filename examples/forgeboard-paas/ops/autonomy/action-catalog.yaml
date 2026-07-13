@@ -1,0 +1,31 @@
+actions:
+  - id: inspect_deployment
+    class: read_only
+    owner: debt
+    kubernetes:
+      verbs: ["get", "list"]
+      resources: ["deployments", "pods", "events"]
+    approval: automatic
+
+  - id: scale_api_replicas
+    class: reversible_safe
+    owner: integration
+    bounds:
+      min: 2
+      max: 8
+    approval: automatic_if_score_at_most_watch
+
+  - id: rollback_bundle_canary
+    class: reversible_risky
+    owner: delivery
+    approval: human_if_active_incident_or_high_tenant_impact
+
+  - id: purge_stream_topic
+    class: destructive
+    owner: debt
+    approval: human_required
+
+  - id: block_security_regression
+    class: gate
+    owner: eye
+    approval: automatic

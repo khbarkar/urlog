@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgeboard-api
+  namespace: forgeboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: forgeboard-api
+  template:
+    metadata:
+      labels:
+        app: forgeboard-api
+    spec:
+      serviceAccountName: forgeboard-api
+      containers:
+        - name: api
+          image: forgeboard/api:dev
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: forgeboard-config
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgeboard-api
+  namespace: forgeboard
+spec:
+  selector:
+    app: forgeboard-api
+  ports:
+    - port: 8080
+      targetPort: 8080

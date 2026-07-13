@@ -1,0 +1,50 @@
+default_provider: local_stub
+selection_policy:
+  air_gapped:
+    allowed:
+      - local_stub
+      - customer_internal_gateway
+      - local_ollama
+    forbidden:
+      - openai_compatible
+      - anthropic_compatible
+  connected_enterprise:
+    allowed:
+      - local_stub
+      - customer_internal_gateway
+      - openai_compatible
+      - anthropic_compatible
+      - local_ollama
+
+providers:
+  local_stub:
+    type: deterministic
+    use: development
+    endpoint: none
+
+  openai_compatible:
+    type: openai_compatible
+    use: optional
+    endpoint_env: OPENAI_BASE_URL
+    api_key_env: OPENAI_API_KEY
+    model_env: OPENAI_MODEL
+
+  anthropic_compatible:
+    type: anthropic_compatible
+    use: optional
+    endpoint_env: ANTHROPIC_BASE_URL
+    api_key_env: ANTHROPIC_API_KEY
+    model_env: ANTHROPIC_MODEL
+
+  local_ollama:
+    type: ollama
+    use: optional_local
+    endpoint_env: OLLAMA_BASE_URL
+    model_env: OLLAMA_MODEL
+
+  customer_internal_gateway:
+    type: openai_compatible
+    use: air_gapped_or_private_network
+    endpoint_env: CUSTOMER_LLM_BASE_URL
+    api_key_env: CUSTOMER_LLM_API_KEY
+    model_env: CUSTOMER_LLM_MODEL

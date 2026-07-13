@@ -1,0 +1,23 @@
+repository:
+  name: forgeboard-paas
+  provider: local_or_git
+  url: file://examples/forgeboard-paas
+  default_branch: main
+  protected_branches:
+    - main
+
+required_metadata:
+  - commit_sha
+  - branch
+  - author
+  - changed_paths
+  - build_contexts
+  - dependency_manifests
+  - kubernetes_manifests
+
+integration_rules:
+  central_version_control: required
+  unsigned_source_snapshot: block
+  missing_commit_sha: block
+  unreviewed_protected_branch_change: block
+  generated_artifacts_in_source_diff: warn

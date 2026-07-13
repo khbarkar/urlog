@@ -1,0 +1,27 @@
+gates:
+  bundle_upload:
+    required:
+      - dependency_scan_passed
+      - schema_compatibility_passed
+      - resource_estimate_within_bounds
+      - task_completion_eval_not_regressed
+    optional:
+      - eye_security_scan_passed
+      - compliance_profile_sector_overlay
+    block_if:
+      - critical_vulnerability
+      - schema_breaking_change
+      - injection_risk_p95_above_threshold
+      - error_budget_remaining_below_policy
+      - required_accessibility_evidence_missing
+      - required_model_provider_trace_missing
+
+  production_promotion:
+    required:
+      - canary_error_budget_ok
+      - fast_burn_below_page_threshold
+      - slow_burn_below_ticket_threshold
+      - rollback_plan_exists
+      - audit_record_created
+      - compliance_profile_loaded
+      - accessibility_evidence_current

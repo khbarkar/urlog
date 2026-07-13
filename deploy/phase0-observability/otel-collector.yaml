@@ -1,0 +1,39 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+
+exporters:
+  debug:
+    verbosity: detailed
+
+  # Confirm current OTLP endpoints in the upstream docs before running.
+  otlphttp/phoenix:
+    endpoint: http://phoenix:6006/v1/traces
+    tls:
+      insecure: true
+
+  # Langfuse supports OpenTelemetry ingestion in current self-hosted versions,
+  # but endpoint/auth details should be copied from the running instance docs.
+  otlphttp/langfuse:
+    endpoint: http://langfuse-web:3000/api/public/otel/v1/traces
+    headers:
+      Authorization: Basic ${env:LANGFUSE_OTEL_BASIC_AUTH}
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp/phoenix, otlphttp/langfuse]

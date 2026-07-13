@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forgeboard
+  namespace: forgeboard
+spec:
+  rules:
+    - host: forgeboard.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: forgeboard-frontend
+                port:
+                  number: 80

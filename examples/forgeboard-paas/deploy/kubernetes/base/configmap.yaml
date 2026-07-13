@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forgeboard-config
+  namespace: forgeboard
+data:
+  ENVIRONMENT: local
+  KAFKA_BOOTSTRAP_SERVERS: forgeboard-redpanda:9092
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+  BUNDLE_MAX_EVENTS_PER_MINUTE: "10000"

@@ -1,0 +1,28 @@
+tests:
+  - id: middleware_unit
+    command: python -m pytest apps/middleware/tests
+    required: true
+    fast_feedback: true
+
+  - id: kubernetes_render_k3s
+    command: kubectl kustomize deploy/kubernetes/overlays/k3s
+    required: true
+    fast_feedback: true
+
+  - id: kubernetes_render_airgap
+    command: kubectl kustomize deploy/kubernetes/overlays/airgap
+    required: true
+    fast_feedback: true
+
+  - id: accessibility_static_review
+    command: manual-or-tooling accessibility review against compliance/accessibility-checklist.md
+    required_for_profiles:
+      - eu
+      - uk
+      - global_enterprise
+
+automated_testing:
+  enabled: true
+  fail_fast: true
+  publish_junit: true
+  publish_coverage: false

@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+images:
+  - name: forgeboard/frontend
+    newName: registry.airgap.local/forgeboard/frontend
+    newTag: dev
+  - name: forgeboard/api
+    newName: registry.airgap.local/forgeboard/api
+    newTag: dev
+  - name: docker.redpanda.com/redpandadata/redpanda
+    newName: registry.airgap.local/redpanda/redpanda
+    newTag: v24.3.1
+configMapGenerator:
+  - name: forgeboard-airgap-profile
+    namespace: forgeboard
+    literals:
+      - DEPLOYMENT_MODE=air_gapped
+      - COMPLIANCE_PROFILE=eu
+      - PUBLIC_LLM_PROVIDERS=forbidden
+      - CUSTOMER_LLM_REQUIRED=true
+generatorOptions:
+  disableNameSuffixHash: true

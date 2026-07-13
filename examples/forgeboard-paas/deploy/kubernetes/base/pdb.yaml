@@ -1,0 +1,21 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: forgeboard-api
+  namespace: forgeboard
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: forgeboard-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: forgeboard-frontend
+  namespace: forgeboard
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: forgeboard-frontend

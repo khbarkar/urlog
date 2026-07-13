@@ -1,0 +1,84 @@
+profile: global_enterprise
+name: Global enterprise procurement baseline
+target_buyers:
+  - multinational_saas
+  - regulated_mid_market
+  - enterprise_platform_teams
+  - managed_service_providers
+
+anchors:
+  - id: iso_27001
+    name: ISO 27001 control alignment
+    applies_when:
+      - enterprise_security_procurement
+    product_controls:
+      - risk_register
+      - control_owner_mapping
+      - access_control_audit
+      - vulnerability_management
+      - supplier_risk_register
+
+  - id: soc2
+    name: SOC 2 evidence posture
+    applies_when:
+      - saas_procurement
+    product_controls:
+      - change_management_evidence
+      - incident_response_evidence
+      - availability_monitoring
+      - access_reviews
+      - audit_log_exports
+
+  - id: wcag
+    name: WCAG AA accessibility baseline
+    applies_when:
+      - customer_facing_ui
+      - operator_ui
+      - exported_reports
+    product_controls:
+      - wcag_aa_checks
+      - keyboard_navigation
+      - visible_focus
+      - semantic_labels
+      - accessible_reports
+
+  - id: air_gap
+    name: High-security air-gapped deployment baseline
+    applies_when:
+      - defence
+      - critical_infrastructure
+      - strict_data_sovereignty
+    product_controls:
+      - offline_install_bundle
+      - private_registry
+      - customer_provided_llm
+      - offline_vulnerability_feeds
+      - no_public_network_dependency
+
+deployment_controls:
+  air_gapped_supported: true
+  customer_provided_llm: supported
+  public_llm_default: optional
+  data_residency: customer_defined
+  offline_updates: supported
+  bring_your_own_keys: required_for_enterprise
+
+automation_policy:
+  destructive_actions: human_required
+  reversible_safe_actions: allowed_with_score
+  missing_audit_evidence: block_production_promotion
+  missing_accessibility_evidence: block_customer_ui_release
+  missing_llm_provider_trace: block_ai_assisted_action
+
+required_evidence:
+  - action_proposal
+  - action_risk_score
+  - approval_decision
+  - change_record
+  - model_provider
+  - evaluator_version
+  - access_audit_trail
+  - vulnerability_scan_result
+  - accessibility_check_result
+  - data_residency_policy
+  - customer_key_policy

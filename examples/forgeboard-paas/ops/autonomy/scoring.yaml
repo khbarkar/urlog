@@ -1,0 +1,24 @@
+risk_scores:
+  low:
+    range: [0, 39]
+    automation: allowed
+  watch:
+    range: [40, 69]
+    automation: allowed_for_reversible_safe
+  high:
+    range: [70, 89]
+    automation: approval_required
+  critical:
+    range: [90, 100]
+    automation: blocked_without_incident_commander
+
+inputs:
+  - tenant_count_impacted
+  - active_incident
+  - error_budget_remaining
+  - burn_rate_fast
+  - burn_rate_slow
+  - dependency_vulnerability_severity
+  - injection_risk_p95
+  - stream_lag_seconds
+  - action_class

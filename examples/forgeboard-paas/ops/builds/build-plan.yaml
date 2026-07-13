@@ -1,0 +1,26 @@
+builds:
+  - id: frontend_container
+    context: apps/frontend
+    dockerfile: apps/frontend/Dockerfile
+    image: forgeboard/frontend
+    required: true
+    evidence:
+      - image_digest
+      - build_log_ref
+      - sbom_ref
+
+  - id: api_container
+    context: apps/middleware
+    dockerfile: apps/middleware/Dockerfile
+    image: forgeboard/api
+    required: true
+    evidence:
+      - image_digest
+      - build_log_ref
+      - sbom_ref
+
+automated_builds:
+  enabled: true
+  fail_fast: true
+  max_duration_minutes: 15
+  cache_policy: allowed_if_reproducible

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: forgeboard-redpanda
+  namespace: forgeboard
+spec:
+  serviceName: forgeboard-redpanda
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forgeboard-redpanda
+  template:
+    metadata:
+      labels:
+        app: forgeboard-redpanda
+    spec:
+      containers:
+        - name: redpanda
+          image: docker.redpanda.com/redpandadata/redpanda:v24.3.1
+          args:
+            - redpanda
+            - start
+            - --smp=1
+            - --memory=1G
+            - --reserve-memory=0M
+            - --overprovisioned
+            - --node-id=0
+            - --check=false
+            - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+            - --advertise-kafka-addr=PLAINTEXT://forgeboard-redpanda:9092
+          ports:
+            - name: kafka
+              containerPort: 9092
+            - name: admin
+              containerPort: 9644
+          resources:
+            requests:
+              cpu: 250m
+              memory: 768Mi
+            limits:
+              cpu: "1"
+              memory: 1536Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgeboard-redpanda
+  namespace: forgeboard
+spec:
+  selector:
+    app: forgeboard-redpanda
+  ports:
+    - name: kafka
+      port: 9092
+      targetPort: kafka
+    - name: admin
+      port: 9644
+      targetPort: admin

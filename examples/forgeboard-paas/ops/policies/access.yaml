@@ -1,0 +1,19 @@
+access:
+  autonomous_controller:
+    allowed:
+      - get
+      - list
+      - watch
+      - patch_deployments_within_bounds
+    forbidden_without_human:
+      - delete_persistent_volume_claim
+      - purge_stream_topic
+      - rotate_tenant_secret
+      - delete_namespace
+
+  human_approval:
+    required_for:
+      - destructive
+      - critical_risk
+      - multi_tenant_outage
+      - compliance_evidence_mutation

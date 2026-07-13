@@ -1,0 +1,36 @@
+gate:
+  id: forgeboard-delivery-readiness
+  consumes:
+    - ops/integration/readiness-score.yaml
+    - ops/policies/deploy-gates.yaml
+    - compliance/profiles/eu.yaml
+
+thresholds:
+  pass: 90
+  watch: 70
+  block: 0
+
+rules:
+  - id: source_control_required
+    if: source_control.status != pass
+    decision: block
+
+  - id: builds_required
+    if: automated_builds.status != pass
+    decision: block
+
+  - id: tests_required
+    if: automated_tests.status != pass
+    decision: block
+
+  - id: eye_critical_findings
+    if: eye_findings.status == block
+    decision: block
+
+  - id: compliance_missing
+    if: compliance_requirements.status == block
+    decision: block
+
+output:
+  decision: hold
+  reason: real build, test, Eye, and accessibility evidence must be connected before production promotion

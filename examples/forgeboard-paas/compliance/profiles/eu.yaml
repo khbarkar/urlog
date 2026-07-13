@@ -1,0 +1,87 @@
+profile: eu
+name: EU regulated operations baseline
+target_buyers:
+  - fintech
+  - medical_startups
+  - green_technology
+  - ict_service_providers
+
+anchors:
+  - id: dora
+    name: Digital Operational Resilience Act
+    source: Regulation (EU) 2022/2554
+    applies_when:
+      - financial_entity
+      - ict_supplier_to_financial_entity
+    product_controls:
+      - ict_risk_management
+      - incident_evidence
+      - resilience_testing
+      - third_party_risk_register
+      - operational_recovery_runbooks
+
+  - id: ai_act_article_12
+    name: AI Act logging and record keeping
+    source: Regulation (EU) 2024/1689
+    applies_when:
+      - high_risk_ai_workflow
+      - ai_assisted_operational_decision
+    product_controls:
+      - ai_decision_logging
+      - evaluator_versioning
+      - model_provider_traceability
+      - human_oversight_evidence
+
+  - id: gdpr
+    name: GDPR data protection baseline
+    applies_when:
+      - personal_data
+    product_controls:
+      - data_minimisation
+      - payload_reference_storage
+      - retention_policy
+      - access_audit_trail
+      - data_residency_policy
+
+  - id: european_accessibility
+    name: European accessibility baseline
+    source: European Accessibility Act / EN 301 549 / WCAG AA
+    applies_when:
+      - customer_facing_ui
+      - operator_ui
+      - exported_reports
+    product_controls:
+      - wcag_aa_checks
+      - keyboard_navigation
+      - visible_focus
+      - semantic_labels
+      - contrast_checks
+      - accessible_exports
+
+deployment_controls:
+  air_gapped_supported: true
+  customer_provided_llm: required_for_high_security
+  public_llm_default: forbidden
+  eu_data_residency: supported
+  offline_updates: required_for_air_gap
+
+automation_policy:
+  destructive_actions: human_required
+  reversible_safe_actions: allowed_with_score
+  security_regression: block_release
+  missing_accessibility_evidence: block_customer_ui_release
+  missing_audit_evidence: block_production_promotion
+
+required_evidence:
+  - action_proposal
+  - action_risk_score
+  - approval_decision
+  - model_provider
+  - model_version_or_endpoint
+  - evaluator_version
+  - input_payload_ref
+  - output_payload_ref
+  - incident_id
+  - tenant_impact
+  - accessibility_check_result
+  - retention_policy_id

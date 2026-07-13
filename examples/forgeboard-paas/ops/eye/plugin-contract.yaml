@@ -1,0 +1,43 @@
+plugin_contract:
+  name: eye_security_dependency_monitor
+  purpose: vulnerability_deprecation_obsolete_component_detection
+  scope:
+    included:
+      - dependency_manifests
+      - container_base_images
+      - sbom_documents
+      - runtime_version_metadata
+      - ci_cd_security_requirements
+    excluded:
+      - general_static_application_security_testing
+      - arbitrary_source_code_scanning
+      - code_style_review
+      - owning_ci_cd_execution
+
+inputs:
+  - source_snapshot_ref
+  - dependency_manifest_refs
+  - sbom_refs
+  - container_image_refs
+  - compliance_profile
+
+outputs:
+  - vulnerability_findings
+  - deprecated_dependencies
+  - obsolete_base_images
+  - unsupported_runtime_versions
+  - license_policy_findings
+  - security_gate_recommendation
+
+scoring:
+  critical_vulnerability: 35
+  high_vulnerability: 20
+  deprecated_runtime: 15
+  obsolete_base_image: 15
+  unsupported_dependency: 10
+  missing_sbom: 25
+
+handoff:
+  integration: imports_findings_into_readiness_score
+  delivery: consumes_security_gate_recommendation
+  debt: stores_findings_as_evidence

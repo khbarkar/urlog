@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Integration - Live Plan Draft</title>
+  <style>
+    :root {
+      --bg: #100f0d;
+      --panel: #1d1813;
+      --panel-2: #251b14;
+      --text: #fff7ed;
+      --muted: #cdbba8;
+      --line: rgba(255, 168, 76, .14);
+      --accent: #d98944;
+      --accent-2: #e7b875;
+      --ok: #43d58c;
+      --warn: #ffd166;
+      --bad: #ff5c5c;
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 290px 1fr; }
+    aside { border-right: 1px solid var(--line); padding: 22px; background: #15110e; }
+    main { padding: 24px; display: grid; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .mark { width: 62px; height: 62px; border-radius: 0; display: grid; place-items: center; background: transparent; box-shadow: none; overflow: visible; }
+    .glyph { display: block; width: 58px; height: 58px; background-image: url("all.png"); background-repeat: no-repeat; background-size: 400% auto; background-position-y: center; filter: drop-shadow(0 0 10px rgba(255, 138, 34, .22)); }
+    .glyph-dragon { background-position-x: 33.333%; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 24px; line-height: 1.05; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    nav { display: grid; gap: 9px; }
+    nav a { color: var(--muted); text-decoration: none; padding: 10px 12px; border: 1px solid transparent; border-radius: 8px; }
+    nav a.active, nav a:hover { color: var(--text); border-color: var(--line); background: rgba(255, 138, 34, .045); }
+    .stack { margin-top: 24px; display: grid; gap: 9px; }
+    .chip { border: 1px solid var(--line); color: var(--muted); padding: 9px 10px; border-radius: 8px; font-size: 13px; background: rgba(255,255,255,.025); }
+    .hero { min-height: 250px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items: stretch; }
+    section, .hero-card { border: 1px solid var(--line); border-radius: 8px; background: linear-gradient(160deg, rgba(255,138,34,.035), rgba(255,255,255,.018)); }
+    .hero-card { padding: 22px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; }
+    .hero-card:after { content: ""; position: absolute; inset: auto -80px -120px auto; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,138,34,.11), transparent 65%); pointer-events: none; }
+    .eyebrow { color: var(--accent-2); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+    .headline { font-size: clamp(32px, 5vw, 58px); line-height: .94; max-width: 680px; margin-top: 10px; letter-spacing: 0; }
+    .copy { color: var(--muted); max-width: 680px; line-height: 1.55; margin-top: 14px; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    button { border: 1px solid var(--line); background: rgba(255, 138, 34, .06); color: var(--text); border-radius: 8px; min-height: 38px; padding: 0 12px; cursor: pointer; }
+    button:hover { background: rgba(255, 138, 34, .1); }
+    .visual { padding: 18px; display: grid; align-content: center; gap: 14px; }
+    .pipeline { display: grid; gap: 10px; }
+    .node { display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 10px; padding: 11px; border-radius: 8px; background: rgba(0,0,0,.2); border: 1px solid var(--line); }
+    .dot { width: 12px; height: 12px; border-radius: 999px; background: var(--ok); box-shadow: 0 0 18px var(--ok); }
+    .node small { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+    .metric { padding: 16px; }
+    .metric .value { font-size: 31px; font-weight: 800; margin-top: 8px; }
+    .metric .label { color: var(--muted); font-size: 13px; }
+    .wide { display: grid; grid-template-columns: 1.4fr .9fr; gap: 18px; }
+    .panel { padding: 16px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .status { color: var(--ok); font-size: 13px; }
+    canvas { width: 100%; height: 260px; display: block; background: rgba(0,0,0,.18); border-radius: 8px; }
+    .feed { display: grid; gap: 10px; max-height: 294px; overflow: hidden; }
+    .event { border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: grid; gap: 4px; background: rgba(0,0,0,.16); }
+    .event strong { font-size: 14px; }
+    .event span { color: var(--muted); font-size: 12px; }
+    .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .tier { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.16); }
+    .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.11); overflow: hidden; margin-top: 9px; }
+    .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width: var(--w); }
+    @media (max-width: 940px) { .shell { grid-template-columns: 1fr; } aside { border-right: 0; border-bottom: 1px solid var(--line); } .hero, .wide { grid-template-columns: 1fr; } .grid, .tiers { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { main, aside { padding: 16px; } .grid, .tiers { grid-template-columns: 1fr; } .headline { font-size: 36px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand">
+        <div class="mark" aria-hidden="true"><span class="glyph glyph-dragon"></span></div>
+        <div><h1>Integration</h1><p class="sub">Verdandi · Plan</p></div>
+      </div>
+      <nav>
+        <a class="active" href="#stream">Live stream</a>
+        <a href="#tiers">Tiered evals</a>
+        <a href="#pipeline">Pipeline health</a>
+        <a href="#handoff">Schema handoff</a>
+      </nav>
+      <div class="stack">
+        <div class="chip">OTLP gRPC collector</div>
+        <div class="chip">Redpanda consumers</div>
+        <div class="chip">OpenLLMetry / OpenInference</div>
+        <div class="chip">Stratified sampler</div>
+      </div>
+    </aside>
+    <main>
+      <div class="hero">
+        <div class="hero-card">
+          <div>
+            <div class="eyebrow">Plan module</div>
+            <div class="headline">Everything flows through one contract.</div>
+            <p class="copy">Integration is the live planning surface: it ingests standard OTel GenAI traffic, buffers it through Redpanda, runs tiered eval work, and feeds the operational stream that later powers cloudops automation.</p>
+            <div class="controls">
+              <button id="pause">Pause live</button>
+              <button id="burst">Simulate traffic burst</button>
+              <button id="error">Inject sampler skew</button>
+            </div>
+          </div>
+          <p class="sub">Static concept page. Data is locally simulated.</p>
+        </div>
+        <section class="visual" id="pipeline">
+          <div class="panel-head"><h2>Ingest pipeline</h2><span class="status">healthy</span></div>
+          <div class="pipeline">
+            <div class="node"><span class="dot"></span><div><strong>OTLP collector</strong><br><small>4317 receiving gen_ai spans</small></div><b id="otlp">2.1k/s</b></div>
+            <div class="node"><span class="dot"></span><div><strong>Redpanda topic</strong><br><small>urlog.sessions.v0</small></div><b id="lag">18ms</b></div>
+            <div class="node"><span class="dot"></span><div><strong>Eval workers</strong><br><small>classifier 100%, judge sampled</small></div><b id="workers">12/12</b></div>
+            <div class="node"><span class="dot"></span><div><strong>Schema output</strong><br><small>Session, Span, EvalScore</small></div><b id="out">ok</b></div>
+          </div>
+        </section>
+      </div>
+      <div class="grid">
+        <section class="metric"><div class="label">Spans received</div><div class="value" id="m1">128k</div></section>
+        <section class="metric"><div class="label">Sampler coverage</div><div class="value" id="m2">14.2%</div></section>
+        <section class="metric"><div class="label">Classifier pass</div><div class="value" id="m3">100%</div></section>
+        <section class="metric"><div class="label">Payload refs</div><div class="value" id="m4">0 inline</div></section>
+      </div>
+      <div class="wide" id="stream">
+        <section class="panel">
+          <div class="panel-head"><h2>Traffic, eval work, and ops signals</h2><span class="status" id="mode">live</span></div>
+          <canvas id="chart" width="900" height="300"></canvas>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2>Event stream</h2><span class="sub">latest first</span></div>
+          <div class="feed" id="feed"></div>
+        </section>
+      </div>
+      <section class="panel" id="tiers">
+        <div class="panel-head"><h2>Tiered evaluation queue</h2><span class="sub">cost stays below inference spend</span></div>
+        <div class="tiers">
+          <div class="tier"><strong>Classifier</strong><p class="sub">100% task_completion precheck</p><div class="bar" style="--w:100%"><i></i></div></div>
+          <div class="tier"><strong>LLM judge</strong><p class="sub">stratified sample: errors, long sessions, new prompts</p><div class="bar" style="--w:18%"><i></i></div></div>
+          <div class="tier"><strong>Human review</strong><p class="sub">only disagreement and high-value failures</p><div class="bar" style="--w:4%"><i></i></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const canvas = document.getElementById('chart'), ctx = canvas.getContext('2d');
+    let live = true, amp = 1, skew = false, tick = 0;
+    const data = Array.from({length: 80}, (_, i) => 42 + Math.sin(i / 5) * 8 + Math.random() * 8);
+    const judge = Array.from({length: 80}, (_, i) => 12 + Math.cos(i / 7) * 4 + Math.random() * 4);
+    const feed = document.getElementById('feed');
+    const events = ['session batch accepted', 'payload_ref verified', 'new prompt version sampled', 'judge queue balanced', 'classifier score emitted'];
+    function draw() {
+      ctx.clearRect(0,0,900,300);
+      ctx.strokeStyle = 'rgba(255,168,76,.09)';
+      for (let y = 40; y < 290; y += 50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(900,y); ctx.stroke(); }
+      plot(data, '#ff8a22', 5, 2.6);
+      plot(judge, '#ffc46b', 15, 2.2);
+    }
+    function plot(arr, color, base, scale) {
+      ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath();
+      arr.forEach((v, i) => { const x = i * (900 / 79), y = 280 - (v + base) * scale; i ? ctx.lineTo(x,y) : ctx.moveTo(x,y); });
+      ctx.stroke();
+    }
+    function pushEvent(text, sev='ok') {
+      const div = document.createElement('div');
+      div.className = 'event';
+      div.innerHTML = `<strong>${text}</strong><span>${new Date().toLocaleTimeString()} - ${sev === 'warn' ? 'watching sampler distribution' : 'schema contract intact'}</span>`;
+      feed.prepend(div);
+      while (feed.children.length > 7) feed.lastChild.remove();
+    }
+    function step() {
+      if (live) {
+        tick++;
+        data.push(42 + Math.sin(tick / 5) * 8 + Math.random() * 10 * amp + (skew ? 12 : 0)); data.shift();
+        judge.push(12 + Math.cos(tick / 6) * 4 + Math.random() * 5 * amp); judge.shift();
+        document.getElementById('m1').textContent = `${128 + tick}k`;
+        document.getElementById('m2').textContent = `${(14.2 + Math.sin(tick/4) * 1.1 + (skew ? 5 : 0)).toFixed(1)}%`;
+        document.getElementById('otlp').textContent = `${(2.1 + Math.random() * amp).toFixed(1)}k/s`;
+        document.getElementById('lag').textContent = `${Math.round(18 + Math.random() * 22 * amp)}ms`;
+        if (tick % 3 === 0) pushEvent(events[tick % events.length], skew ? 'warn' : 'ok');
+        draw();
+      }
+      requestAnimationFrame(() => setTimeout(step, 850));
+    }
+    document.getElementById('pause').onclick = () => { live = !live; document.getElementById('pause').textContent = live ? 'Pause live' : 'Resume live'; document.getElementById('mode').textContent = live ? 'live' : 'paused'; };
+    document.getElementById('burst').onclick = () => { amp = 2.8; setTimeout(() => amp = 1, 5000); pushEvent('retrieval-nord traffic burst detected', 'warn'); };
+    document.getElementById('error').onclick = () => { skew = !skew; pushEvent(skew ? 'sampler skew guard tripped' : 'sampler distribution recovered', skew ? 'warn' : 'ok'); };
+    draw(); step(); pushEvent('collector bootstrapped');
+  </script>
+</body>
+</html>

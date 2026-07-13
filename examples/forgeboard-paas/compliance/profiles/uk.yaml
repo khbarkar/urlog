@@ -1,0 +1,79 @@
+profile: uk
+name: UK regulated operations baseline
+target_buyers:
+  - fintech
+  - healthcare
+  - public_sector
+  - regulated_saas
+
+anchors:
+  - id: uk_gdpr
+    name: UK GDPR and Data Protection Act posture
+    applies_when:
+      - personal_data
+    product_controls:
+      - data_minimisation
+      - retention_policy
+      - access_audit_trail
+      - data_residency_policy
+      - exportable_processing_evidence
+
+  - id: fca_pra_operational_resilience
+    name: FCA/PRA operational resilience posture
+    applies_when:
+      - financial_services
+      - supplier_to_financial_services
+    product_controls:
+      - important_business_service_mapping
+      - impact_tolerance_evidence
+      - incident_timeline_export
+      - recovery_runbooks
+      - third_party_dependency_register
+
+  - id: nhs_dsp_toolkit
+    name: NHS Data Security and Protection Toolkit posture
+    applies_when:
+      - nhs_or_healthcare_supplier
+    product_controls:
+      - access_control_audit
+      - vulnerability_management
+      - incident_response_evidence
+      - data_protection_evidence
+
+  - id: uk_accessibility
+    name: UK accessibility posture
+    applies_when:
+      - public_sector
+      - customer_facing_ui
+      - operator_ui
+    product_controls:
+      - wcag_aa_checks
+      - keyboard_navigation
+      - visible_focus
+      - semantic_labels
+      - accessible_reports
+
+deployment_controls:
+  air_gapped_supported: true
+  customer_provided_llm: supported
+  public_llm_default: configurable
+  data_residency: uk_or_customer_defined
+  offline_updates: required_for_air_gap
+
+automation_policy:
+  destructive_actions: human_required
+  reversible_safe_actions: allowed_with_score
+  important_business_service_incident: require_human_review
+  missing_recovery_evidence: block_production_promotion
+  missing_accessibility_evidence: block_public_sector_release
+
+required_evidence:
+  - action_proposal
+  - action_risk_score
+  - approval_decision
+  - incident_timeline
+  - model_provider
+  - evaluator_version
+  - data_residency_policy
+  - accessibility_check_result
+  - recovery_validation

@@ -1,0 +1,56 @@
+score:
+  id: forgeboard-readiness-local-dev
+  producer: integration
+  consumer: delivery
+  commit_sha: local-dev
+  generated_at: replace-at-runtime
+
+components:
+  source_control:
+    weight: 15
+    status: pass
+    notes:
+      - central version control metadata present
+
+  automated_builds:
+    weight: 20
+    status: pass
+    notes:
+      - frontend image build planned
+      - api image build planned
+
+  automated_tests:
+    weight: 20
+    status: pass
+    notes:
+      - middleware syntax and kustomize render pass locally
+
+  fast_feedback:
+    weight: 10
+    status: pass
+    notes:
+      - failures should be returned before release gate evaluation
+
+  eye_findings:
+    weight: 20
+    status: watch
+    notes:
+      - dependency and deprecation monitor contract exists
+      - no real scanner wired yet
+
+  compliance_requirements:
+    weight: 15
+    status: watch
+    notes:
+      - accessibility and air-gap evidence requirements defined
+      - automated accessibility tooling not wired yet
+
+result:
+  numeric_score: 78
+  verdict: watch
+  delivery_recommendation: hold_for_real_build_test_and_eye_evidence
+  blocking_reasons: []
+  warnings:
+    - real CI execution not connected
+    - Eye plugin contract exists but scanner implementation is not wired
+    - accessibility checks are defined but not automated

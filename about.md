@@ -8,7 +8,7 @@ In Norse myth, three sisters — the Norns — sit at a well beneath the world t
 
 | Module | Norn | Meaning |
 |---|---|---|
-| **Rheo** | Verðandi | *"I flow"* — the ingestion stream |
-| **Chreos** | Skuld | *"debt"* — the error budget |
-| **Aitia** | Urðr | *"cause"* — root-cause forensics |
-| **Auga** | Odin's eye | *"eye"* — the one Odin paid for sight |
+| **Integration** | Verdandi | *"I flow"* — the live integration stream |
+| **Delivery** | Skuld | *"fate"* — deploy fate and error-budget gates |
+| **Debt** | Urdr | *"cause"* — troubleshooting and forensic memory |
+| **Eye** | Odin's eye | *"eye"* — optional security sight |

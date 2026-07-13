@@ -1,0 +1,103 @@
+profile: us
+name: US enterprise and regulated operations baseline
+target_buyers:
+  - saas
+  - fintech
+  - healthcare
+  - public_sector_adjacent
+  - critical_infrastructure_suppliers
+
+anchors:
+  - id: nist_ai_rmf
+    name: NIST AI Risk Management Framework
+    applies_when:
+      - ai_assisted_operational_decision
+      - autonomous_operations
+    product_controls:
+      - ai_risk_register
+      - model_provider_traceability
+      - evaluation_evidence
+      - human_review_policy
+      - monitoring_for_drift
+
+  - id: nist_csf
+    name: NIST Cybersecurity Framework
+    applies_when:
+      - enterprise_security_procurement
+    product_controls:
+      - asset_inventory
+      - vulnerability_management
+      - incident_response_evidence
+      - recovery_runbooks
+      - access_control_audit
+
+  - id: ada_accessibility
+    name: ADA / WCAG accessibility posture
+    applies_when:
+      - public_sector
+      - healthcare
+      - customer_facing_ui
+    product_controls:
+      - wcag_aa_checks
+      - keyboard_navigation
+      - visible_focus
+      - semantic_labels
+      - accessible_reports
+
+  - id: sec_cyber_disclosure
+    name: SEC cybersecurity risk management and incident disclosure
+    applies_when:
+      - public_company
+      - supplier_to_public_company
+    product_controls:
+      - material_incident_packet
+      - governance_evidence
+      - risk_management_evidence
+      - incident_timeline_export
+
+  - id: hipaa
+    name: HIPAA healthcare privacy and security posture
+    applies_when:
+      - protected_health_information
+    product_controls:
+      - access_audit_trail
+      - minimum_necessary_access
+      - encryption_policy
+      - incident_evidence
+      - retention_policy
+
+  - id: pci_dss
+    name: PCI DSS cardholder-data posture
+    applies_when:
+      - cardholder_data
+    product_controls:
+      - cardholder_data_boundary
+      - no_sensitive_payload_inline
+      - vulnerability_scan_evidence
+      - access_control_audit
+
+deployment_controls:
+  air_gapped_supported: true
+  customer_provided_llm: supported
+  public_llm_default: configurable
+  data_residency: configurable
+  offline_updates: required_for_air_gap
+
+automation_policy:
+  destructive_actions: human_required
+  reversible_safe_actions: allowed_with_score
+  public_company_material_incident: require_human_review
+  missing_accessibility_evidence: block_public_sector_release
+  missing_security_evidence: block_regulated_release
+
+required_evidence:
+  - action_proposal
+  - action_risk_score
+  - approval_decision
+  - model_provider
+  - evaluator_version
+  - incident_timeline
+  - access_audit_trail
+  - vulnerability_scan_result
+  - accessibility_check_result
+  - recovery_validation

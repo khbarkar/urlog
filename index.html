@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Urlog Samples</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101214; color: #eef2f4; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px; display: grid; gap: 22px; }
+    h1, h2, p { margin: 0; }
+    p { color: #aeb9bf; line-height: 1.55; }
+    a { color: #a9d8ff; }
+    a:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .item { border: 1px solid #2a333a; border-radius: 8px; padding: 16px; background: #151a1f; }
+    .item h2 { font-size: 18px; margin-bottom: 8px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Urlog Samples</h1>
+      <p>Static drafts and learning scaffolds for the autonomous operations platform.</p>
+    </header>
+    <section class="grid" aria-label="Module samples">
+      <article class="item"><h2><a href="integration/index.html">Integration</a></h2><p>Verdandi / Plan. OTLP ingest, repo signals, builds, tests, and readiness scoring.</p></article>
+      <article class="item"><h2><a href="delivery/index.html">Delivery</a></h2><p>Skuld / Fate. SLOs, burn-rate alerts, deploy readiness, and release gates.</p></article>
+      <article class="item"><h2><a href="debt/index.html">Debt</a></h2><p>Urdr / Acts. Forensics, incident lifecycle, audit records, and action scoring.</p></article>
+      <article class="item"><h2><a href="eye/index.html">Eye</a></h2><p>Monitor. Optional security and dependency-monitor plugin findings.</p></article>
+    </section>
+    <section class="item">
+      <h2>ForgeBoard PaaS</h2>
+      <p><a href="examples/forgeboard-paas/README.md">ForgeBoard</a> is the fake EU-first regulated PaaS sample used to exercise Integration, Delivery, Debt, and Eye.</p>
+    </section>
+    <section class="item">
+      <h2>Integration Learning</h2>
+      <p><a href="learning/integration/README.md">Learning track</a> follows OpenLLMetry, Langfuse, Phoenix, dual-shipping, and the two-week comparison workflow.</p>
+    </section>
+  </main>
+</body>
+</html>
