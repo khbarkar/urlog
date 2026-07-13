@@ -4,10 +4,8 @@
 
 <h1 align="center">Urlog</h1>
 
-<p align="center"><em>The primordial law. The original log.</em></p>
-
 <p align="center">
-  The SLO engine and incident layer for production AI systems —<br>
+  SLO engine and incident layer for production AI systems —<br>
   quality error budgets, burn-rate alerting, and audit-grade records for agents in production.
 </p>
 
