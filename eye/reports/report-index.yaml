@@ -1,0 +1,55 @@
+report_index:
+  owner: eye
+  default_backend: opensearch
+  canonical_store: clickhouse
+  artifact_store: object_storage
+  optional_raw_log_store: loki
+
+indexes:
+  - name: eye-readiness-reports
+    backend: opensearch
+    source_topics:
+      - integration.readiness
+      - delivery.gates
+    searchable_fields:
+      - tenant_id
+      - commit_sha
+      - readiness_verdict
+      - warning
+      - blocking_reason
+    semantic_search: true
+
+  - name: eye-incident-reports
+    backend: opensearch
+    source_topics:
+      - debt.incidents
+      - ops.actions
+    searchable_fields:
+      - incident_id
+      - tenant_id
+      - action_id
+      - approval_resolution
+      - risk_score
+    semantic_search: true
+
+  - name: eye-secflow-findings
+    backend: opensearch
+    source_topics:
+      - secflow.findings
+    searchable_fields:
+      - scanner
+      - severity
+      - dependency
+      - image
+      - cve
+      - deprecated_component
+    semantic_search: false
+
+document_outputs:
+  - type: pdf
+    destination: object_storage
+  - type: markdown
+    destination: object_storage
+  - type: doc_system
+    destination: customer_connector
+    requires_llm_or_tool_support: true

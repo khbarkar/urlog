@@ -2,21 +2,36 @@
 
 Small name: **Monitor**
 
-Eye is the optional monitoring and security plugin layer. It can assist Integration, Delivery, and Debt by supplying security, vulnerability, deprecation, obsolete dependency, and prompt-injection findings.
+Eye is the live reporting and evidence layer for Urlog. It watches the event stream, gathers evidence from Integration, Delivery, Debt, and SecFlow, generates reports, and publishes those reports to humans, machines, and customer document systems.
 
 ## Owns
 
-- Optional DevSecOps plugins.
-- Prompt-injection and jailbreak detection on live streams.
-- Security deploy-gate signals for Delivery.
-- Threat and security evidence for Debt.
-- Dependency vulnerability, deprecation, and obsolete-component findings.
+- Live report generation from Redpanda streams.
+- Human-readable reports: readiness, release, incident, compliance, and security summaries.
+- Machine-readable reports for gates, audits, and downstream tools.
+- PDF/document generation.
+- Report upload to customer document systems where the plugged LLM/tool provider supports it.
+- Report and evidence indexing.
+- Operator dashboards and report APIs.
 
-## Explicitly Out Of Scope
+## Default Storage Shape
 
-- General code scanning as a product category.
-- Owning CI/CD systems.
-- Owning source-control systems.
-- Owning storage, transport, or release policy.
+Eye uses:
 
-Eye may inspect downloaded source artifacts and dependency manifests to produce findings, but it does not become a SAST platform. Findings are scored and handed to Integration/Delivery/Debt.
+- **ClickHouse** as the canonical analytical/evidence store.
+- **OpenSearch** as the default open-source report and evidence search index.
+- **Object storage** for generated PDFs, document packets, and large report artifacts.
+- **Loki** optionally for raw logs when a Prometheus/Grafana stack is already present.
+
+OpenSearch is preferred over a default "ELK" stack because OpenSearch is a cleaner open-source default for self-hosted and air-gapped buyers, while still giving Elasticsearch/Kibana-style search and dashboards.
+
+## Does Not Own
+
+- Build/test/repo integration. That is Integration.
+- Release decisions. That is Delivery.
+- Incident truth and action scoring. That is Debt.
+- Security scanner implementation. That is SecFlow.
+
+## Myth Frame
+
+Eye watches the tree and writes what it sees. SecFlow provides the well water: optional security and dependency signals poured into the system so reports show whether the operational tree is healthy.

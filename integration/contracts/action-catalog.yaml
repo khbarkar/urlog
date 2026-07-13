@@ -1,0 +1,160 @@
+version: 0.1.0
+owner: integration
+
+action_classes:
+  read_only:
+    default_base_risk: 5
+    description: Inspect state without mutation.
+  reversible_safe:
+    default_base_risk: 20
+    description: Mutates only ephemeral or integration resources and has clear cleanup.
+  reversible_risky:
+    default_base_risk: 55
+    description: Mutates shared or persistent non-production resources.
+  production_impacting:
+    default_base_risk: 75
+    description: Can affect production behavior or customer-visible availability.
+  destructive:
+    default_base_risk: 90
+    description: Can delete data, remove access, purge queues, or irreversibly alter state.
+
+actions:
+  - id: fetch_source_snapshot
+    class: read_only
+    owner: integration
+    description: Fetch source metadata and immutable source snapshot from a connected VCS.
+    allowed_environment_types: [source_control]
+    required_evidence: [source_provider, repository, branch_or_ref]
+    executor: source_control
+    verification: [commit_sha_recorded, changed_paths_recorded]
+
+  - id: inspect_repository
+    class: read_only
+    owner: integration
+    description: Inspect repository layout, manifests, build files, and dependency files.
+    allowed_environment_types: [source_control, local_workspace]
+    required_evidence: [commit_sha, source_snapshot_ref]
+    executor: repository_inspector
+    verification: [build_contexts_detected, dependency_manifests_detected]
+
+  - id: render_kubernetes_manifests
+    class: read_only
+    owner: integration
+    description: Render Kubernetes manifests with kustomize or equivalent tooling.
+    allowed_environment_types: [ci, integration]
+    required_evidence: [commit_sha, manifest_path]
+    executor: kubernetes_renderer
+    verification: [render_output_ref]
+
+  - id: build_container
+    class: reversible_safe
+    owner: integration
+    description: Build a container image from a declared Dockerfile and context.
+    allowed_environment_types: [ci, integration, kvm_worker]
+    required_evidence: [commit_sha, dockerfile_path, build_context, registry_target]
+    executor: container_builder
+    verification: [image_digest_created, build_log_ref]
+
+  - id: push_container_image
+    class: reversible_safe
+    owner: integration
+    description: Push a built image to an approved registry.
+    allowed_environment_types: [ci, integration, kvm_worker]
+    required_evidence: [image_digest, registry_target, registry_policy]
+    executor: registry
+    verification: [registry_digest_readback]
+
+  - id: run_unit_tests
+    class: reversible_safe
+    owner: integration
+    description: Run declared unit tests in CI or integration environment.
+    allowed_environment_types: [ci, integration, kvm_worker]
+    required_evidence: [commit_sha, test_plan]
+    executor: test_runner
+    verification: [test_report_ref]
+
+  - id: run_smoke_tests
+    class: reversible_safe
+    owner: integration
+    description: Run declared smoke tests against an ephemeral deployment.
+    allowed_environment_types: [integration]
+    required_evidence: [commit_sha, deployment_ref, smoke_test_plan]
+    executor: test_runner
+    verification: [smoke_test_report_ref]
+
+  - id: create_ephemeral_namespace
+    class: reversible_safe
+    owner: integration
+    description: Create a temporary Kubernetes namespace for build or test work.
+    allowed_environment_types: [integration]
+    required_evidence: [cluster_id, namespace_prefix, ttl]
+    executor: kubernetes
+    verification: [namespace_created, ttl_label_set]
+
+  - id: delete_ephemeral_namespace
+    class: reversible_safe
+    owner: integration
+    description: Delete a temporary namespace created by Integration.
+    allowed_environment_types: [integration]
+    required_evidence: [cluster_id, namespace, created_by_integration, ttl_expired_or_run_complete]
+    executor: kubernetes
+    verification: [namespace_deleted]
+
+  - id: deploy_ephemeral_test_environment
+    class: reversible_safe
+    owner: integration
+    description: Deploy app manifests into an ephemeral test namespace.
+    allowed_environment_types: [integration]
+    required_evidence: [commit_sha, rendered_manifest_ref, namespace]
+    executor: kubernetes
+    verification: [workloads_ready]
+
+  - id: run_eye_dependency_monitor
+    class: read_only
+    owner: eye
+    description: Run optional Eye dependency, deprecation, obsolete component, and image findings.
+    allowed_environment_types: [ci, integration, kvm_worker]
+    required_evidence: [source_snapshot_ref, dependency_manifest_refs]
+    executor: eye_plugin
+    verification: [secflow_findings_ref]
+    explicit_non_goals:
+      - general_static_application_security_testing
+      - arbitrary_source_code_scanning
+
+  - id: emit_readiness_score
+    class: read_only
+    owner: integration
+    description: Emit Integration readiness score for Delivery.
+    allowed_environment_types: [ci, integration]
+    required_evidence: [source_evidence, build_evidence, test_evidence, policy_evidence]
+    executor: readiness_scorer
+    verification: [readiness_score_ref]
+
+  - id: open_evidence_ticket
+    class: read_only
+    owner: integration
+    description: Open a ticket or issue with build/test/readiness evidence.
+    allowed_environment_types: [source_control, ci]
+    required_evidence: [readiness_score_ref, target_system]
+    executor: ticketing
+    verification: [ticket_ref]
+
+  - id: touch_production_namespace
+    class: production_impacting
+    owner: delivery
+    description: Any production namespace mutation. Listed to make default policy explicit.
+    allowed_environment_types: [production]
+    required_evidence: [delivery_approval, debt_risk_score, human_or_break_glass_approval]
+    executor: kubernetes
+    verification: [change_record_ref]
+    default_resolution: human_required
+
+  - id: purge_stream_topic
+    class: destructive
+    owner: debt
+    description: Purge a stream topic or delete queued events.
+    allowed_environment_types: [production, staging]
+    required_evidence: [incident_id, debt_risk_score, human_approval]
+    executor: streaming_admin
+    verification: [audit_record_ref]
+    default_resolution: human_required

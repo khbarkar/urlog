@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecFlow</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #ffffff;
+      color: #151515;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 20px;
+      display: grid;
+      gap: 28px;
+    }
+    header {
+      display: grid;
+      gap: 18px;
+      justify-items: start;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 28px;
+    }
+    img {
+      width: min(280px, 72vw);
+      height: auto;
+      display: block;
+      background: #0a0a0a;
+      border-radius: 8px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(40px, 7vw, 76px); line-height: .92; letter-spacing: 0; }
+    p { color: #4f4f4f; line-height: 1.6; max-width: 760px; }
+    section {
+      display: grid;
+      gap: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fafafa;
+    }
+    .card p { font-size: 14px; }
+    .pill {
+      display: inline-block;
+      margin-top: 12px;
+      border: 1px solid #d6d6d6;
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: #333;
+      font-size: 12px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="logo.png" alt="Urlog Yggdrasil logo">
+      <h1>SecFlow</h1>
+      <p>Optional security-flow for Urlog. SecFlow pours third-party security signals into Integration, Delivery, Debt, and Eye without becoming a SAST platform or owning release policy.</p>
+    </header>
+
+    <section>
+      <h2>What It Does</h2>
+      <div class="grid">
+        <article class="card">
+          <h2>Prompt Risk</h2>
+          <p>LlamaFirewall / PromptGuard-style prompt-injection and jailbreak findings.</p>
+          <span class="pill">runtime</span>
+        </article>
+        <article class="card">
+          <h2>Regression Evidence</h2>
+          <p>garak-style CI and red-team evidence for security release gates.</p>
+          <span class="pill">CI</span>
+        </article>
+        <article class="card">
+          <h2>Supply Chain</h2>
+          <p>Dependency, image, SBOM, deprecation, obsolete runtime, and license findings.</p>
+          <span class="pill">findings</span>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Boundaries</h2>
+      <p>SecFlow emits scored findings and gate recommendations. Integration imports them into readiness scoring, Delivery consumes them as gate evidence, Debt stores them as incident/audit evidence, and Eye reports them.</p>
+      <p>General code scanning is out of scope unless a customer explicitly plugs in a tool that produces compatible findings.</p>
+    </section>
+  </main>
+</body>
+</html>

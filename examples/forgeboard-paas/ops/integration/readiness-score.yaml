@@ -31,7 +31,7 @@ components:
     notes:
       - failures should be returned before release gate evaluation
 
-  eye_findings:
+  secflow_findings:
     weight: 20
     status: watch
     notes:
@@ -52,5 +52,5 @@ result:
   blocking_reasons: []
   warnings:
     - real CI execution not connected
-    - Eye plugin contract exists but scanner implementation is not wired
+    - SecFlow plugin contract exists but scanner implementation is not wired
     - accessibility checks are defined but not automated

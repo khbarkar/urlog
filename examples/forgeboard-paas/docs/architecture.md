@@ -9,7 +9,7 @@
 5. Delivery decides whether the bundle may be promoted.
 6. Integration monitors live traffic and eval streams after promotion.
 7. Debt diagnoses failures and scores operational interventions.
-8. Eye can add optional security findings from third-party scanners.
+8. SecFlow can add optional security findings from third-party scanners.
 
 ## Runtime Topics
 
@@ -19,7 +19,7 @@
 | `forgeboard.bundle.vetted` | vetting workers | API, Delivery |
 | `forgeboard.run.events` | middleware/runtime | Integration, Debt |
 | `forgeboard.ops.actions` | autonomous controller | Debt audit, operators |
-| `forgeboard.security.findings` | Eye adapters | Delivery, Debt |
+| `forgeboard.secflow.findings` | SecFlow adapters | Delivery, Debt |
 | `forgeboard.transactions.submitted` | middleware | vetting workers, Integration |
 | `forgeboard.transactions.settled` | middleware | audit exports, Debt |
 

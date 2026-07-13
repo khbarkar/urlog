@@ -1,0 +1,42 @@
+{
+  "execution_id": "exec-build-api-local-dev",
+  "intent_id": "intent-build-api-local-dev",
+  "action_id": "build_container",
+  "environment_id": "forgeboard_ci",
+  "started_at": "2026-07-14T10:00:02Z",
+  "finished_at": "2026-07-14T10:03:12Z",
+  "selected_by": {
+    "kind": "llm",
+    "id": "integration-planner",
+    "provider": "customer_internal_gateway",
+    "model": "customer-selected"
+  },
+  "risk_score": 22,
+  "approval_resolution": "pre_approved",
+  "policy_id": "integration-build-test",
+  "evidence_refs": [
+    {
+      "type": "commit_sha",
+      "ref": "local-dev"
+    },
+    {
+      "type": "build_log",
+      "ref": "payload_ref://builds/exec-build-api-local-dev.log"
+    }
+  ],
+  "result": {
+    "status": "succeeded",
+    "output_refs": [
+      "registry://forgeboard/api@sha256:replace-me"
+    ],
+    "verification": [
+      "image_digest_created",
+      "build_log_ref"
+    ]
+  },
+  "audit": {
+    "record_ref": "audit://integration/exec-build-api-local-dev",
+    "hash": "sha256:replace-me",
+    "previous_hash": "sha256:previous"
+  }
+}

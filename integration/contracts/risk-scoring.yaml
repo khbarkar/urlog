@@ -1,0 +1,53 @@
+version: 0.1.0
+owner: integration
+
+base_scores:
+  read_only: 5
+  reversible_safe: 20
+  reversible_risky: 55
+  production_impacting: 75
+  destructive: 90
+
+modifiers:
+  production_environment: 30
+  staging_environment: 10
+  missing_commit_sha: 30
+  missing_required_evidence: 25
+  missing_security_evidence: 20
+  missing_accessibility_evidence: 20
+  air_gapped_environment: 10
+  customer_data_access: 25
+  creates_cloud_spend: 20
+  deletes_resource: 35
+  persistent_storage_touch: 35
+  source_snapshot_unsigned: 20
+  no_rollback_path: 20
+  secflow_critical_finding: 35
+  secflow_high_finding: 20
+
+caps:
+  minimum: 0
+  maximum: 100
+
+bands:
+  low:
+    range: [0, 39]
+    default_resolution: pre_approved_if_policy_matches
+  watch:
+    range: [40, 69]
+    default_resolution: pre_approved_only_for_explicit_policy
+  high:
+    range: [70, 89]
+    default_resolution: human_required
+  critical:
+    range: [90, 100]
+    default_resolution: denied_or_break_glass_required
+
+calculation_order:
+  - load_action_base_score
+  - add_environment_modifiers
+  - add_evidence_modifiers
+  - add_data_access_modifiers
+  - add_security_modifiers
+  - clamp_to_caps
+  - match_pre_approval_policy

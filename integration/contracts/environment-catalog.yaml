@@ -1,0 +1,80 @@
+version: 0.1.0
+owner: integration
+
+environment_types:
+  source_control:
+    description: Source-control or GitOps system.
+  ci:
+    description: CI runner, CI controller, or build system.
+  integration:
+    description: Non-production Kubernetes namespace or cluster for build/test work.
+  kvm_worker:
+    description: KVM-backed worker managed through an approved connector or MCP server.
+  staging:
+    description: Shared pre-production environment.
+  production:
+    description: Customer-facing production environment.
+  local_workspace:
+    description: Local checkout or sandbox.
+
+environments:
+  - id: forgeboard_github
+    type: source_control
+    provider: github
+    production: false
+    required_access:
+      - read_repository
+      - read_pull_requests
+      - read_commit_metadata
+    notes: GitLab, Jenkins, Argo, Flux, and Perforce are modeled as adapters.
+
+  - id: forgeboard_integration_namespace
+    type: integration
+    cluster: forgeboard-dev
+    namespace: forgeboard-integration
+    production: false
+    ephemeral: true
+    required_access:
+      - kubectl_get
+      - kubectl_apply
+      - kubectl_delete_ephemeral
+      - read_logs
+
+  - id: forgeboard_ci
+    type: ci
+    provider: configurable
+    production: false
+    required_access:
+      - trigger_pipeline
+      - read_pipeline_status
+      - read_artifacts
+
+  - id: forgeboard_registry
+    type: ci
+    provider: container_registry
+    production: false
+    required_access:
+      - push_image
+      - read_digest
+      - read_sbom
+
+  - id: forgeboard_kvm_worker_pool
+    type: kvm_worker
+    provider: mcp
+    production: false
+    optional: true
+    required_access:
+      - create_worker
+      - destroy_worker
+      - attach_build_volume
+    notes: ESXi is out of scope unless a future approved connector exists.
+
+  - id: forgeboard_production
+    type: production
+    cluster: forgeboard-prod
+    namespace: forgeboard
+    production: true
+    ephemeral: false
+    required_access:
+      - read_only_by_default
+    notes: Integration does not mutate this environment by default.

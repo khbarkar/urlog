@@ -23,8 +23,8 @@ rules:
     if: automated_tests.status != pass
     decision: block
 
-  - id: eye_critical_findings
-    if: eye_findings.status == block
+  - id: secflow_critical_findings
+    if: secflow_findings.status == block
     decision: block
 
   - id: compliance_missing
@@ -33,4 +33,4 @@ rules:
 
 output:
   decision: hold
-  reason: real build, test, Eye, and accessibility evidence must be connected before production promotion
+  reason: real build, test, SecFlow, and accessibility evidence must be connected before production promotion

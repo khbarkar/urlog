@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urlog.local/integration/execution-record.schema.json",
+  "title": "Integration Execution Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "execution_id",
+    "intent_id",
+    "action_id",
+    "environment_id",
+    "started_at",
+    "finished_at",
+    "risk_score",
+    "approval_resolution",
+    "policy_id",
+    "evidence_refs",
+    "result",
+    "audit"
+  ],
+  "properties": {
+    "execution_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "intent_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "action_id": {
+      "type": "string"
+    },
+    "environment_id": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "selected_by": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "risk_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "approval_resolution": {
+      "type": "string",
+      "enum": ["pre_approved", "human_required", "denied", "escalated", "break_glass_required"]
+    },
+    "policy_id": {
+      "type": "string"
+    },
+    "human_approval_ref": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["succeeded", "failed", "held", "denied", "cancelled"]
+        },
+        "output_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_ref", "hash"],
+      "properties": {
+        "record_ref": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "previous_hash": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

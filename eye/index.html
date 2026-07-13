@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Eye - Monitor Plugin Draft</title>
+  <title>Eye - Live Reporting</title>
   <style>
     :root {
       --bg: #121109;
@@ -26,25 +26,16 @@
     main { padding: 24px; display: grid; gap: 18px; }
     h1, h2, h3, p { margin: 0; }
     h1 { font-size: 24px; }
+    h2 { font-size: 18px; }
     .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
     .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
-    .mark {
-      width: 62px;
-      height: 62px;
-      border-radius: 0;
-      display: grid;
-      place-items: center;
-      background: transparent;
-      box-shadow: none;
-      overflow: visible;
-    }
+    .mark { width: 62px; height: 62px; display: grid; place-items: center; }
     .glyph {
       display: block;
       background-image: url("all.png");
       background-repeat: no-repeat;
       background-size: 400% auto;
-      background-position-y: center;
-      background-position-x: 100%;
+      background-position: 100% center;
       filter: drop-shadow(0 0 10px rgba(255, 214, 74, .24));
     }
     .mark .glyph { width: 58px; height: 58px; }
@@ -65,11 +56,11 @@
       border-radius: 8px;
       background: linear-gradient(160deg, rgba(255, 214, 74, .035), rgba(255, 255, 255, .018));
     }
-    .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; min-height: 250px; }
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; min-height: 250px; }
     .hero-card { padding: 22px; display: flex; flex-direction: column; justify-content: space-between; }
     .eyebrow { color: var(--accent-2); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
     .headline { font-size: clamp(32px, 5vw, 58px); line-height: .94; letter-spacing: 0; margin-top: 10px; }
-    .copy { color: var(--muted); line-height: 1.55; max-width: 720px; margin-top: 14px; }
+    .copy { color: var(--muted); line-height: 1.55; max-width: 760px; margin-top: 14px; }
     .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
     button {
       border: 1px solid var(--line);
@@ -96,9 +87,7 @@
       aspect-ratio: 1;
       z-index: 1;
       filter: drop-shadow(0 0 18px rgba(255, 214, 74, .28));
-      transition: filter .2s ease, transform .2s ease;
     }
-    .well .hero-glyph.hot { filter: drop-shadow(0 0 24px rgba(255, 107, 122, .5)); transform: scale(1.04); }
     .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
     .metric { padding: 16px; }
     .label { color: var(--muted); font-size: 13px; }
@@ -111,16 +100,16 @@
     .feed { display: grid; gap: 10px; max-height: 294px; overflow: hidden; }
     .event { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: rgba(0, 0, 0, .16); display: grid; gap: 4px; }
     .event span { color: var(--muted); font-size: 12px; }
-    .gate, .adapters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .card { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0, 0, 0, .16); }
     .pill { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; margin-top: 10px; font-size: 12px; }
     .ok { color: var(--ok); }
     .warn { color: var(--warn); }
     .bad { color: var(--bad); }
-    .adapter-list { display: grid; gap: 10px; }
-    .adapter {
+    .flow { display: grid; gap: 10px; }
+    .flow-row {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 180px 1fr auto;
       gap: 10px;
       align-items: center;
       padding: 10px;
@@ -128,18 +117,19 @@
       border-radius: 8px;
       background: rgba(0, 0, 0, .16);
     }
-    .adapter small { color: var(--muted); }
+    .flow-row small { color: var(--muted); }
+    code { color: var(--accent-2); }
     @media (max-width: 940px) {
       .shell { grid-template-columns: 1fr; }
       aside { border-right: 0; border-bottom: 1px solid var(--line); }
       .hero, .wide { grid-template-columns: 1fr; }
-      .grid, .gate, .adapters { grid-template-columns: repeat(2, 1fr); }
+      .grid, .cards { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 560px) {
       main, aside { padding: 16px; }
-      .grid, .gate, .adapters { grid-template-columns: 1fr; }
+      .grid, .cards { grid-template-columns: 1fr; }
       .headline { font-size: 36px; }
-      .adapter { grid-template-columns: 1fr; }
+      .flow-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -151,151 +141,144 @@
         <div><h1>Eye</h1><p class="sub">Monitor</p></div>
       </div>
       <nav>
-        <a class="active" href="#risk">Injection risk</a>
-        <a href="#adapters">Scanner adapters</a>
-        <a href="#gate">Security gate</a>
-        <a href="#threats">Threat forensics</a>
+        <a class="active" href="#live">Live reports</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#index">Report index</a>
+        <a href="#documents">Documents</a>
       </nav>
       <div class="stack">
-        <div class="chip">Integration stream consumer</div>
-        <div class="chip">Optional DevSecOps tools</div>
-        <div class="chip">injection_risk EvalScore</div>
-        <div class="chip">Delivery and Debt handoff</div>
+        <div class="chip">Redpanda report stream</div>
+        <div class="chip">ClickHouse canonical store</div>
+        <div class="chip">OpenSearch report index</div>
+        <div class="chip">PDF/doc export</div>
       </div>
     </aside>
     <main>
       <div class="hero">
         <div class="hero-card">
           <div>
-            <div class="eyebrow">Security module</div>
-            <div class="headline">Eye is optional monitoring assistance.</div>
-            <p class="copy">The hypothetical Eye v0 adapter consumes untrusted content from Integration, runs any qualifying DevSecOps scanner, normalizes the result into `EvalScore(metric="injection_risk")`, lets Delivery gate releases, and leaves threat evidence for Debt. The core loop can run without it.</p>
+            <div class="eyebrow">Reporting module</div>
+            <div class="headline">Eye watches and writes the record.</div>
+            <p class="copy">Eye consumes live evidence from Redpanda, gathers signals from Integration, Delivery, Debt, and SecFlow, then generates human-readable reports, machine-readable packets, searchable indexes, PDFs, and customer document-system exports.</p>
             <div class="controls">
               <button id="pause">Pause live</button>
-              <button id="attack">Simulate retrieval-borne attack</button>
-              <button id="clear">Clear gate</button>
+              <button id="report">Generate report</button>
+              <button id="secflow">Add SecFlow finding</button>
             </div>
           </div>
-          <p class="sub">Static concept page. Scanner output is locally simulated.</p>
+          <p class="sub">Static concept page. Report events are locally simulated.</p>
         </div>
         <section class="well">
-          <div id="eyeImage" class="glyph hero-glyph" role="img" aria-label="Odin's eye in a well"></div>
+          <div class="glyph hero-glyph" role="img" aria-label="Odin's eye in a well"></div>
         </section>
       </div>
 
-      <div class="grid">
-        <section class="metric"><div class="label">Injection risk p95</div><div class="value" id="m1">0.18</div></section>
-        <section class="metric"><div class="label">Blocked releases</div><div class="value" id="m2">0</div></section>
-        <section class="metric"><div class="label">Scanner coverage</div><div class="value" id="m3">100%</div></section>
-        <section class="metric"><div class="label">Threat clusters</div><div class="value" id="m4">2</div></section>
+      <div class="grid" id="live">
+        <section class="metric"><div class="label">Reports generated</div><div class="value" id="m1">128</div></section>
+        <section class="metric"><div class="label">Indexed evidence</div><div class="value" id="m2">42k</div></section>
+        <section class="metric"><div class="label">Open packets</div><div class="value" id="m3">7</div></section>
+        <section class="metric"><div class="label">Doc exports</div><div class="value" id="m4">19</div></section>
       </div>
 
-      <div class="wide" id="risk">
+      <div class="wide">
         <section class="panel">
-          <div class="panel-head"><h2>Security score stream</h2><span class="status" id="mode">live</span></div>
+          <div class="panel-head"><h2>Report throughput</h2><span class="status" id="mode">live</span></div>
           <canvas id="chart" width="900" height="300"></canvas>
         </section>
-        <section class="panel" id="threats">
-          <div class="panel-head"><h2>Threat feed</h2><span class="sub">latest first</span></div>
+        <section class="panel">
+          <div class="panel-head"><h2>Report feed</h2><span class="sub">latest first</span></div>
           <div class="feed" id="feed"></div>
         </section>
       </div>
 
-      <section class="panel" id="adapters">
-        <div class="panel-head"><h2>Scanner adapter registry</h2><span class="sub">tools must fit Eye's contract</span></div>
-        <div class="adapter-list">
-          <div class="adapter">
-            <div><strong>LlamaFirewall / PromptGuard 2</strong><br><small>runtime classifier candidate for direct prompt injection and jailbreak patterns</small></div>
-            <span class="pill ok" id="a1">primary</span>
-          </div>
-          <div class="adapter">
-            <div><strong>garak</strong><br><small>CI and red-team candidate that can feed Delivery release-gate evidence</small></div>
-            <span class="pill warn" id="a2">offline</span>
-          </div>
-          <div class="adapter">
-            <div><strong>Future detector</strong><br><small>allowed if it emits scored findings without owning storage, transport, or policy</small></div>
-            <span class="pill ok" id="a3">open slot</span>
-          </div>
+      <section class="panel" id="architecture">
+        <div class="panel-head"><h2>Reporting architecture</h2><span class="sub">from stream to searchable evidence</span></div>
+        <div class="flow">
+          <div class="flow-row"><strong>Redpanda topics</strong><small>Integration readiness, Delivery gates, Debt incidents, SecFlow findings</small><code>input</code></div>
+          <div class="flow-row"><strong>Eye report workers</strong><small>Normalize events, assemble reports, create document packets</small><code>process</code></div>
+          <div class="flow-row"><strong>ClickHouse</strong><small>Canonical analytical and evidence tables</small><code>truth</code></div>
+          <div class="flow-row"><strong>OpenSearch</strong><small>Default open-source report/evidence index with full-text and semantic search</small><code>search</code></div>
+          <div class="flow-row"><strong>Object storage</strong><small>PDFs, Markdown, document packets, large artifacts</small><code>artifacts</code></div>
+          <div class="flow-row"><strong>Loki</strong><small>Optional raw-log retention when a Prometheus/Grafana stack is already present</small><code>optional</code></div>
         </div>
       </section>
 
-      <section class="panel" id="gate">
-        <div class="panel-head"><h2>Security gate handoff</h2><span class="sub">Eye assists Integration, Delivery, and Debt</span></div>
-        <div class="gate">
-          <div class="card"><strong>EvalScore</strong><p class="sub">metric: injection_risk, evaluator_version stamped</p><span class="pill ok" id="p1">writing</span></div>
-          <div class="card"><strong>Delivery gate</strong><p class="sub">block if susceptibility evals regress</p><span class="pill ok" id="p2">clear</span></div>
-          <div class="card"><strong>Debt evidence</strong><p class="sub">retrieval-borne prompt attached to incident</p><span class="pill ok" id="p3">ready</span></div>
+      <section class="panel" id="index">
+        <div class="panel-head"><h2>Report index</h2><span class="sub">OpenSearch by default</span></div>
+        <div class="cards">
+          <div class="card"><strong>eye-readiness-reports</strong><p class="sub">Commit, readiness verdict, warnings, blocking reasons.</p><span class="pill ok">semantic search</span></div>
+          <div class="card"><strong>eye-incident-reports</strong><p class="sub">Incident id, action id, approval resolution, risk score.</p><span class="pill ok">semantic search</span></div>
+          <div class="card"><strong>eye-secflow-findings</strong><p class="sub">Scanner, severity, dependency, image, CVE, deprecated component.</p><span class="pill warn">keyword search</span></div>
+        </div>
+      </section>
+
+      <section class="panel" id="documents">
+        <div class="panel-head"><h2>Document outputs</h2><span class="sub">policy-controlled exports</span></div>
+        <div class="cards">
+          <div class="card"><strong>PDF</strong><p class="sub">Release packets, compliance evidence, incident summaries.</p><span class="pill ok">object storage</span></div>
+          <div class="card"><strong>Markdown</strong><p class="sub">Machine-readable reports for Git, tickets, and docs.</p><span class="pill ok">object storage</span></div>
+          <div class="card"><strong>Doc system</strong><p class="sub">Customer connector when the plugged LLM/tool provider supports upload.</p><span class="pill warn">optional</span></div>
         </div>
       </section>
     </main>
   </div>
+
   <script>
-    const c = document.getElementById('chart');
-    const x = c.getContext('2d');
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
     const feed = document.getElementById('feed');
     let live = true;
-    let t = 0;
-    let attack = false;
-    let blocked = 0;
-    const risk = Array.from({ length: 80 }, (_, i) => 18 + Math.sin(i / 5) * 4 + Math.random() * 4);
+    let tick = 0;
+    let reports = 128;
+    let exports = 19;
+    const data = Array.from({ length: 80 }, (_, i) => 28 + Math.sin(i / 5) * 7 + Math.random() * 6);
+    const indexed = Array.from({ length: 80 }, (_, i) => 18 + Math.cos(i / 7) * 4 + Math.random() * 5);
 
     function draw() {
-      x.clearRect(0, 0, 900, 300);
-      x.strokeStyle = 'rgba(255,214,74,.09)';
+      ctx.clearRect(0, 0, 900, 300);
+      ctx.strokeStyle = 'rgba(255,214,74,.09)';
       for (let y = 40; y < 290; y += 50) {
-        x.beginPath();
-        x.moveTo(0, y);
-        x.lineTo(900, y);
-        x.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(900, y);
+        ctx.stroke();
       }
-      x.strokeStyle = '#ffd64a';
-      x.lineWidth = 3;
-      x.beginPath();
-      risk.forEach((v, i) => {
-        const px = i * (900 / 79);
-        const py = 280 - v * 2.4;
-        i ? x.lineTo(px, py) : x.moveTo(px, py);
+      plot(data, '#d8b94a', 3.5);
+      plot(indexed, '#eadc8a', 4.2);
+    }
+
+    function plot(arr, color, scale) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      arr.forEach((v, i) => {
+        const x = i * (900 / 79);
+        const y = 280 - v * scale;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
       });
-      x.stroke();
-      x.strokeStyle = '#ff6b7a';
-      x.setLineDash([8, 8]);
-      x.beginPath();
-      x.moveTo(0, 96);
-      x.lineTo(900, 96);
-      x.stroke();
-      x.setLineDash([]);
+      ctx.stroke();
     }
 
-    function evt(title, detail = 'schema handoff intact') {
-      const d = document.createElement('div');
-      d.className = 'event';
-      d.innerHTML = `<strong>${title}</strong><span>${new Date().toLocaleTimeString()} - ${detail}</span>`;
-      feed.prepend(d);
+    function pushEvent(title, detail = 'report indexed into OpenSearch') {
+      const event = document.createElement('div');
+      event.className = 'event';
+      event.innerHTML = `<strong>${title}</strong><span>${new Date().toLocaleTimeString()} - ${detail}</span>`;
+      feed.prepend(event);
       while (feed.children.length > 7) feed.lastChild.remove();
-    }
-
-    function setGate(blockedState) {
-      document.getElementById('p2').textContent = blockedState ? 'blocked' : 'clear';
-      document.getElementById('p2').className = `pill ${blockedState ? 'bad' : 'ok'}`;
-      document.getElementById('eyeImage').classList.toggle('hot', blockedState);
-      document.getElementById('a1').textContent = blockedState ? 'triggered' : 'primary';
-      document.getElementById('a1').className = `pill ${blockedState ? 'bad' : 'ok'}`;
     }
 
     function step() {
       if (live) {
-        t++;
-        const spike = attack ? 42 : 0;
-        risk.push(18 + Math.sin(t / 5) * 4 + Math.random() * 5 + spike);
-        risk.shift();
-        document.getElementById('m1').textContent = (0.18 + (attack ? .44 : 0) + Math.random() * .03).toFixed(2);
-        document.getElementById('m2').textContent = blocked;
-        document.getElementById('m4').textContent = attack ? '5' : '2';
-        if (t % 4 === 0) {
-          evt(
-            attack ? 'retrieval-borne injection cluster found' : 'injection_risk scores emitted',
-            attack ? 'LlamaFirewall adapter recommends release block' : 'scanner result normalized into EvalScore'
-          );
+        tick++;
+        data.push(28 + Math.sin(tick / 5) * 7 + Math.random() * 7);
+        data.shift();
+        indexed.push(18 + Math.cos(tick / 7) * 4 + Math.random() * 6);
+        indexed.shift();
+        if (tick % 4 === 0) {
+          reports++;
+          document.getElementById('m1').textContent = reports;
+          document.getElementById('m2').textContent = `${42 + Math.floor(tick / 8)}k`;
+          pushEvent('readiness report updated', 'Integration score and Delivery gate packet refreshed');
         }
         draw();
       }
@@ -307,25 +290,21 @@
       document.getElementById('pause').textContent = live ? 'Pause live' : 'Resume live';
       document.getElementById('mode').textContent = live ? 'live' : 'paused';
     };
-    document.getElementById('attack').onclick = () => {
-      attack = !attack;
-      if (attack) {
-        blocked++;
-        setGate(true);
-        evt('security gate blocked release', 'susceptibility regression exceeds policy');
-      } else {
-        evt('attack simulation stopped', 'risk score cooling');
-      }
+    document.getElementById('report').onclick = () => {
+      reports++;
+      exports++;
+      document.getElementById('m1').textContent = reports;
+      document.getElementById('m4').textContent = exports;
+      pushEvent('compliance packet generated', 'PDF and Markdown artifacts written to object storage');
     };
-    document.getElementById('clear').onclick = () => {
-      attack = false;
-      setGate(false);
-      evt('security gate cleared', 'new prompt bundle passes injection suite');
+    document.getElementById('secflow').onclick = () => {
+      document.getElementById('m3').textContent = '8';
+      pushEvent('SecFlow summary added', 'dependency and prompt-injection findings attached to report');
     };
 
     draw();
     step();
-    evt('Eye adapter registry loaded', 'PromptGuard primary, garak offline, future detectors allowed');
+    pushEvent('Eye report worker started', 'consuming Redpanda report topics');
   </script>
 </body>
 </html>

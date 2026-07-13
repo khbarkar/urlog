@@ -12,16 +12,16 @@ Integration owns the live connection between source systems, runtime signals, an
 - Tiered eval workers: classifiers on 100%, LLM judge on stratified samples.
 - Centralized version-control metadata from connected repos.
 - Build, test, dependency, and CI feedback ingestion.
-- Security/deprecation/obsolete dependency findings from Eye plugins.
+- Security/deprecation/obsolete dependency findings from SecFlow plugins.
 - Readiness scores emitted for Delivery.
 
 ## Does Not Own
 
 - Quality SLO math, error budgets, or release policy. That is Delivery.
 - Session forensics, incident lifecycle, and audit evidence. That is Debt.
-- Security scanner implementation. Eye supplies optional plugins.
+- Security scanner implementation. SecFlow supplies optional plugins.
 - Proprietary SDKs. Integration uses standard instrumentation and existing CI/source APIs.
 
 ## ForgeBoard Role
 
-For `examples/forgeboard-paas`, Integration is the module that connects to the repository, builds the frontend and middleware containers, records test feedback, imports Eye plugin findings, and emits a score that Delivery can use to decide whether the system is ready.
+For `examples/forgeboard-paas`, Integration is the module that connects to the repository, builds the frontend and middleware containers, records test feedback, imports SecFlow plugin findings, and emits a score that Delivery can use to decide whether the system is ready.

@@ -1,0 +1,29 @@
+report_worker:
+  owner: eye
+  consumes_from: redpanda
+  produces:
+    - clickhouse_records
+    - opensearch_documents
+    - object_storage_artifacts
+
+topics:
+  input:
+    - forgeboard.integration.readiness
+    - forgeboard.delivery.gates
+    - forgeboard.debt.incidents
+    - forgeboard.ops.actions
+    - forgeboard.secflow.findings
+  output:
+    - forgeboard.eye.reports.created
+
+report_types:
+  - readiness_report
+  - release_gate_report
+  - incident_report
+  - compliance_packet
+  - secflow_summary
+
+document_upload:
+  enabled: optional
+  provider: customer_supplied
+  rule: only_upload_when_connector_and_policy_allow

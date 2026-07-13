@@ -12,7 +12,7 @@ This is the initial Delivery-facing pipeline shape.
 6. Run schema compatibility checks.
 7. Run bundle resource estimate.
 8. Run sampled eval fixtures.
-9. Optionally run Eye security checks.
+9. Optionally run SecFlow security checks.
 10. Emit deploy-gate evidence for Delivery.
 
 ## Gate Output

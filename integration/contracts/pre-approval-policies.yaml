@@ -1,0 +1,94 @@
+version: 0.1.0
+owner: integration
+
+approval_resolutions:
+  - pre_approved
+  - human_required
+  - denied
+  - escalated
+  - break_glass_required
+
+policies:
+  - id: integration-read-only
+    description: Read-only repository, CI, and cluster inspection is pre-approved.
+    actions:
+      - fetch_source_snapshot
+      - inspect_repository
+      - render_kubernetes_manifests
+      - run_eye_dependency_monitor
+      - emit_readiness_score
+      - open_evidence_ticket
+    environments:
+      - forgeboard_github
+      - forgeboard_ci
+      - forgeboard_integration_namespace
+    max_risk_score: 39
+    required_evidence:
+      - actor_id
+      - purpose
+    approval_resolution: pre_approved
+
+  - id: integration-build-test
+    description: Build and test actions are pre-approved in CI and integration environments.
+    actions:
+      - build_container
+      - push_container_image
+      - run_unit_tests
+      - create_ephemeral_namespace
+      - deploy_ephemeral_test_environment
+      - run_smoke_tests
+      - delete_ephemeral_namespace
+    environments:
+      - forgeboard_ci
+      - forgeboard_registry
+      - forgeboard_integration_namespace
+      - forgeboard_kvm_worker_pool
+    max_risk_score: 49
+    required_evidence:
+      - commit_sha
+      - source_provider
+      - compliance_profile
+      - build_or_test_plan
+    approval_resolution: pre_approved
+
+  - id: kvm-worker-bootstrap
+    description: KVM worker creation is pre-approved only for bounded non-production build workers.
+    actions:
+      - create_ephemeral_namespace
+      - build_container
+      - run_unit_tests
+    environments:
+      - forgeboard_kvm_worker_pool
+    max_risk_score: 49
+    required_evidence:
+      - worker_ttl
+      - resource_quota
+      - no_customer_data_access
+    approval_resolution: pre_approved
+
+  - id: production-read-only
+    description: Production read-only inspection may be pre-approved for evidence collection.
+    actions:
+      - fetch_source_snapshot
+      - inspect_repository
+    environments:
+      - forgeboard_production
+    max_risk_score: 39
+    required_evidence:
+      - incident_or_change_id
+      - read_only_scope
+    approval_resolution: pre_approved
+
+  - id: production-mutation-default-hold
+    description: Production-impacting or destructive actions are not silently pre-approved.
+    action_classes:
+      - production_impacting
+      - destructive
+    environments:
+      - forgeboard_production
+    approval_resolution: human_required
+
+  - id: unknown-action-deny
+    description: Unknown actions are denied before scoring.
+    match_unknown_action: true
+    approval_resolution: denied

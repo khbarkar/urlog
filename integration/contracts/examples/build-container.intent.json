@@ -1,0 +1,28 @@
+{
+  "intent_id": "intent-build-api-local-dev",
+  "created_at": "2026-07-14T10:00:00Z",
+  "selected_by": {
+    "kind": "llm",
+    "id": "integration-planner",
+    "provider": "customer_internal_gateway",
+    "model": "customer-selected"
+  },
+  "action_id": "build_container",
+  "target": {
+    "kind": "container_image",
+    "name": "forgeboard/api"
+  },
+  "environment_id": "forgeboard_ci",
+  "reason": "The middleware image must be built before Integration can emit a readiness score for Delivery.",
+  "evidence_refs": [
+    {
+      "type": "commit_sha",
+      "ref": "local-dev"
+    },
+    {
+      "type": "dockerfile_path",
+      "ref": "examples/forgeboard-paas/apps/middleware/Dockerfile"
+    }
+  ],
+  "requested_ttl_minutes": 30
+}

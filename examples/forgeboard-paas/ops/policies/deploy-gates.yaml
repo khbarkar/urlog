@@ -6,7 +6,7 @@ gates:
       - resource_estimate_within_bounds
       - task_completion_eval_not_regressed
     optional:
-      - eye_security_scan_passed
+      - secflow_security_scan_passed
       - compliance_profile_sector_overlay
     block_if:
       - critical_vulnerability
