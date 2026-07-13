@@ -6,9 +6,9 @@ In Norse myth, three sisters — the Norns — sit at a well beneath the world t
 
 ## The module names
 
-| Module | Origin | Meaning |
+| Module | Norn | Meaning |
 |---|---|---|
-| **Rheo** | Greek ῥέω | *"I flow"* — the ingestion stream |
-| **Chreos** | Greek χρέος | *"debt"* — the error budget |
-| **Aitia** | Greek αἰτία | *"cause"* — root-cause forensics |
-| **Auga** | Old Norse | *"eye"* — the one Odin paid for sight |
+| **Rheo** | Verðandi | *"I flow"* — the ingestion stream |
+| **Chreos** | Skuld | *"debt"* — the error budget |
+| **Aitia** | Urðr | *"cause"* — root-cause forensics |
+| **Auga** | Odin's eye | *"eye"* — the one Odin paid for sight |
