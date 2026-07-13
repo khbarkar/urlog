@@ -21,14 +21,12 @@ Urlog ingests standard OTLP (OTel GenAI semantic conventions). No proprietary SD
 
 ## The modules
 
-In Norse myth, three sisters sit at a well beneath the world tree and lay down *ørlǫg* — the primordial law: what has become, what is becoming, and what is owed. Odin gave an eye to that well in exchange for sight.
-
-| Module | Greek | Role | What it owns |
-|---|---|---|---|
-| **Rheo** | ῥέω, *"I flow"* | Integration | OTLP ingestion, Redpanda consumers, tiered eval workers (classifiers on 100% of traffic, LLM-judge on stratified samples) |
-| **Chreos** | χρέος, *"debt"* | Deployment | Quality SLOs, error budgets, multi-window multi-burn-rate alerting, eval-gated releases |
-| **Aitia** | αἰτία, *"cause"* | Troubleshooting | Session forensics, incident lifecycle, hash-chained immutable audit log, AI Act Article 12 retention |
-| **Auga** | Old Norse, *"eye"* | Security | Prompt-injection detection on the live stream, security deploy gates in Chreos, threat forensics in Aitia |
+| Module | Role | What it owns |
+|---|---|---|
+| **Rheo** | Integration | OTLP ingestion, Redpanda consumers, tiered eval workers (classifiers on 100% of traffic, LLM-judge on stratified samples) |
+| **Chreos** | Deployment | Quality SLOs, error budgets, multi-window multi-burn-rate alerting, eval-gated releases |
+| **Aitia** | Troubleshooting | Session forensics, incident lifecycle, hash-chained immutable audit log, AI Act Article 12 retention |
+| **Auga** | Security | Prompt-injection detection on the live stream, security deploy gates in Chreos, threat forensics in Aitia |
 
 The modules are separate systems bound by one contract: the versioned protobuf schema in [`schema/`](schema/). Rheo writes it, Chreos reads it to gate, Aitia queries it forever, Auga annotates it. A change that touches two modules without going through the schema is a bug in the change.
 
@@ -63,4 +61,4 @@ Pre-alpha. Design partner #0 is a production LangGraph retrieval system. Follow 
 
 ## The name
 
-*Ørlǫg* — ór ("primordial") + lǫg ("laws, that which is laid down") — is the fate-decree the Norns carve at the well. Rendered in ASCII it becomes **Urlog**: the ur-log, the record that precedes all others. For once, the pun is etymologically load-bearing.
+Norns, wells, and a traded eye — see [about.md](about.md).
