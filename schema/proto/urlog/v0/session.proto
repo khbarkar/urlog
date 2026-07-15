@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package urlog.v0;
+
+option go_package = "github.com/khbarkar/urlog/schema/gen/go/urlog/v0;urlogv0";
+
+enum Outcome {
+  OUTCOME_UNSPECIFIED = 0;
+  OUTCOME_SUCCESS = 1;
+  OUTCOME_FAILURE = 2;
+  OUTCOME_ABANDONED = 3;
+  OUTCOME_UNKNOWN = 4;
+}
+
+message Session {
+  bytes session_id = 1;
+  string tenant_id = 2;
+  string agent_name = 3;
+  Outcome outcome = 4;
+  int64 started_unix_nano = 5;
+  int64 ended_unix_nano = 6;
+  uint64 total_input_tokens = 7;
+  uint64 total_output_tokens = 8;
+  string prompt_bundle_version = 9;
+}

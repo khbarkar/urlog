@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="Urlog" width="540">
+  <img src="docs/assets/logo.png" alt="Urlog" width="540">
 </p>
 
 <h1 align="center">Urlog</h1>
@@ -25,7 +25,9 @@ Urlog starts with contracts, not a model choice. The LLM is pluggable and may pl
 
 First-time installation starts with the bootstrap contract in [`bootstrap/`](bootstrap/). Bootstrap defines the initial trust handoff: LLM access, repository access, secret backend, infrastructure access, and whether Urlog should install an integration system or connect to an existing one. Config contains secret references only; secret values must never appear in config, logs, prompts, traces, reports, or readiness packets.
 
-For Integration, those contracts live in [`integration/contracts/`](integration/contracts/):
+Urlog stores operational metadata and evidence references. It is **not** a raw log collector; dedicated log systems are better for high-volume raw logs. See [`docs/storage-policy.md`](docs/storage-policy.md).
+
+For Integration, those contracts live in [`modules/integration/contracts/`](modules/integration/contracts/):
 
 ```text
 intent -> action exists -> environment allowed -> evidence present ->
@@ -50,7 +52,7 @@ If an action is not in the catalog, it cannot run. If an environment is not list
 | **Integration** | Integration | OTLP ingestion, Redpanda consumers, tiered eval workers (classifiers on 100% of traffic, LLM-judge on stratified samples) |
 | **Delivery** | Deployment | Quality SLOs, error budgets, multi-window multi-burn-rate alerting, eval-gated releases |
 | **Debt** | Troubleshooting | Session forensics, incident lifecycle, hash-chained immutable audit log, AI Act Article 12 retention |
-| **Eye** | Reporting | Live reports, evidence indexes, PDFs/docs, report upload connectors, OpenSearch report search |
+| **Eye** | Reporting | Live reports, metadata/evidence indexes, PDFs/docs, report upload connectors, optional search sinks |
 | **SecFlow** | Security | Third-party security tools: prompt-injection detection, garak evidence, dependency/image/SBOM findings, security gate signals |
 
 The modules are separate systems bound by one contract: the versioned protobuf schema in [`schema/`](schema/). Integration writes it, Delivery reads it to gate, Debt queries it forever, Eye reports on it; SecFlow annotates it with optional security findings. A change that touches two modules without going through the schema is a bug in the change.
@@ -65,7 +67,7 @@ In the autonomous-ops loop, those same roles stay intact:
 
 ## Architecture in one paragraph
 
-Spans arrive over OTLP gRPC, buffer through Redpanda, and land in ClickHouse as narrow rows — full prompt/completion payloads live in object storage behind `payload_ref`. The unit of analysis is the **session with a goal-level outcome**, not the request: agent failures are multi-step causal chains and the data model has to admit that. Eval scores are a separate stream joined at query time, each stamped with `evaluator_version`, because judges drift exactly like the systems they judge. Delivery rolls scores into SLIs, tracks the error budget, and gates deploys; Debt keeps the forensic and audit trail; Integration supplies the live stream; Eye can generate reports and SecFlow can add security findings.
+Spans arrive over OTLP gRPC, buffer through Redpanda, and land in ClickHouse as narrow metadata rows — full prompt/completion payloads, command transcripts, and large artifacts live in object storage or customer log systems behind references. The unit of analysis is the **session with a goal-level outcome**, not the request: agent failures are multi-step causal chains and the data model has to admit that. Eval scores are a separate stream joined at query time, each stamped with `evaluator_version`, because judges drift exactly like the systems they judge. Delivery rolls scores into SLIs, tracks the error budget, and gates deploys; Debt keeps the forensic and audit trail; Integration supplies the live stream; Eye can generate reports and SecFlow can add security findings.
 
 ## Quickstart (dev)
 
@@ -89,18 +91,16 @@ The Urlog services are stateless `Deployment` resources: `urlog-api`, `urlog-wor
 ## Repository layout
 
 ```
-schema/    the contract — protobuf, versioned, breaking changes need their own MR
 bootstrap/ first-time install contracts, secret backend catalog, and target examples
-integration/      integration
-delivery/    deployment
-debt/     troubleshooting
-eye/      reporting and monitor
-secflow/  optional security flow
+docs/      design notes and repository conventions
+internal/  small tested Go packages used by commands and services
+modules/   product module docs, contracts, and static concept pages
 deploy/    Kustomize install, observability sketches, and later packaged deployments
-assets/    brand — SVG sources of record
 examples/  ForgeBoard PaaS sample system
 learning/  tutorial tracks for Phase 0 learning
 ```
+
+See [`docs/repo-layout.md`](docs/repo-layout.md) before adding new top-level folders.
 
 ## Samples
 
@@ -112,4 +112,4 @@ Pre-alpha. Design partner #0 is a production LangGraph retrieval system. Follow 
 
 ## The name
 
-Norns, wells, and a traded eye — see [about.md](about.md).
+Norns, wells, and a traded eye — see [docs/about.md](docs/about.md).
