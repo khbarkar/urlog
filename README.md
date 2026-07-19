@@ -5,69 +5,72 @@
 <h1 align="center">Urlog</h1>
 
 <p align="center">
-  Autonomous,  but not opaque, operations layer for production AI systems —<br>
-  quality error budgets, burn-rate alerting, eval-gated releases, and audit-grade records.
+  SLO engine and incident layer for production AI systems:<br>
+  quality error budgets, burn-rate alerting, eval-gated releases, audit-grade records.
 </p>
 
 ---
 
-## Why
+## Overview
 
-Every AI observability tool on the market is a **dev-loop** tool: trace, debug, eval, iterate. Urlog is the **ops loop**: quality SLOs, error budgets, multi-window burn-rate alerting, incident lifecycle, and AI Act Article 12 audit records. Tracing tells you what your agent did. Urlog tells you whether someone should be paged, whether a release should be stopped, which operational action is safe to take, and can execute pre-approved actions as the autonomous operator.
+Existing AI observability tools serve the dev loop (trace, debug, eval, iterate). Urlog serves the ops loop: it decides whether someone should be paged, whether a release should proceed, and which operational action is safe to take — and it can execute pre-approved actions autonomously. Every action is traceable, scored, gated, and auditable.
 
-Urlog ingests standard OTLP (OTel GenAI semantic conventions). No proprietary SDK. If your system is instrumented for anything, it is instrumented for Urlog.
+Design constraints:
 
-The long-term product shape is autonomous operations with explicit boundaries: observe production systems, score risk, gate releases, propose or execute safe maintenance actions, and require human approval for predefined destructive actions. The system is agent-assisted, but the contract stays operational: every action is traceable, scored, gated, and auditable.
+- **OTLP-native, no proprietary SDK.** Ingests standard OTel GenAI semantic conventions (OpenLLMetry, OpenInference). Existing instrumentation works unmodified.
+- **Session as unit of analysis.** Agent failures are multi-step causal chains; the data model tracks sessions with goal-level outcomes, not individual requests.
+- **Metadata store, not a log collector.** ClickHouse holds narrow metadata rows; prompt/completion payloads and large artifacts stay in object storage behind `payload_ref`. See [`docs/storage-policy.md`](docs/storage-policy.md).
+- **Versioned eval scores.** Eval results are a separate stream joined at query time, each stamped with `evaluator_version`, because judges drift like the systems they judge.
+- **Tiered evaluation.** Classifiers on 100% of traffic, LLM-judge on stratified samples, human review on disagreement.
+- **Multi-window multi-burn-rate alerting** (SRE Workbook ch. 5), not naive thresholds.
+- **EU-first, self-hostable.** No hard dependency on US-only managed services.
+- **Contracts before models.** The LLM is pluggable and may plan work, but the system acts only through machine-readable contracts (see below).
 
-## Step 1 — Contracts Before Models
+## Modules
 
-Urlog starts with contracts, not a model choice. The LLM is pluggable and may plan the work, but the system only acts through machine-readable contracts.
+Five modules, bound by one contract: the versioned protobuf schema in [`schema/`](schema/). Integration writes it, Delivery reads it to gate, Debt queries it forever, Eye reports on it, SecFlow annotates it. A change that couples two modules without going through the schema is a defect.
 
-First-time installation starts with the bootstrap contract in [`bootstrap/`](bootstrap/). Bootstrap defines the initial trust handoff: LLM access, repository access, secret backend, infrastructure access, and whether Urlog should install an integration system or connect to an existing one. Config contains secret references only; secret values must never appear in config, logs, prompts, traces, reports, or readiness packets.
+| Module | Role | Owns |
+|---|---|---|
+| **Integration** | Ingest | OTLP gRPC ingest, Redpanda consumers, tiered eval workers, live operational signal feed |
+| **Delivery** | Deployment | Quality SLOs, error budgets, multi-window burn-rate alerting, eval-gated releases, CI readiness checks |
+| **Debt** | Troubleshooting | Session forensics, incident lifecycle, hash-chained immutable audit log, AI Act Article 12 retention, action risk scoring |
+| **Eye** | Reporting | Live reports, metadata/evidence indexes, PDF/doc generation, report upload connectors, optional search sinks |
+| **SecFlow** | Security (optional) | Prompt-injection detection, garak evidence, dependency/image/SBOM findings, security gate signals |
 
-Urlog stores operational metadata and evidence references. It is **not** a raw log collector; dedicated log systems are better for high-volume raw logs. See [`docs/storage-policy.md`](docs/storage-policy.md).
+SecFlow can be omitted without breaking the core loop.
 
-For Integration, those contracts live in [`modules/integration/contracts/`](modules/integration/contracts/):
+## Contract-gated execution
+
+Every autonomous action passes this pipeline:
 
 ```text
 intent -> action exists -> environment allowed -> evidence present ->
 risk score calculated -> pre-approval matched -> execute -> verify -> audit
 ```
 
-The contracts define:
+Contracts for Integration live in [`modules/integration/contracts/`](modules/integration/contracts/):
 
-- `action-catalog.yaml`: what actions the autonomous operator may choose.
-- `environment-catalog.yaml`: where actions may happen.
-- `pre-approval-policies.yaml`: which actions may run without live human approval.
-- `risk-scoring.yaml`: how final action risk is calculated.
-- `intent.schema.json`: the shape an LLM-planned action must emit.
-- `execution-record.schema.json`: the audit record every action must leave behind.
+| File | Defines |
+|---|---|
+| `action-catalog.yaml` | Actions the autonomous operator may choose |
+| `environment-catalog.yaml` | Environments where actions may run |
+| `pre-approval-policies.yaml` | Actions permitted without live human approval |
+| `risk-scoring.yaml` | Final action risk calculation |
+| `intent.schema.json` | Shape an LLM-planned action must emit |
+| `execution-record.schema.json` | Audit record every action must leave behind |
 
-If an action is not in the catalog, it cannot run. If an environment is not listed, it cannot be targeted. If evidence is missing, policy can hold or deny the action. This is how Urlog can be autonomous without being opaque: the LLM proposes operational intent, policy resolves authorization, executors run bounded actions, and Debt records the proof.
+Enforcement is deny-by-default: an action absent from the catalog cannot run, an unlisted environment cannot be targeted, and missing evidence holds or denies the action. Predefined destructive actions always require human approval.
 
-## The modules
+First-time installation starts with the bootstrap contract in [`bootstrap/`](bootstrap/), which defines the initial trust handoff: LLM access, repository access, secret backend, and infrastructure access. Configuration carries secret *references* only — secret values never appear in config, logs, prompts, traces, reports, or readiness packets.
 
-| Module | Role | What it owns |
-|---|---|---|
-| **Integration** | Integration | OTLP ingestion, Redpanda consumers, tiered eval workers (classifiers on 100% of traffic, LLM-judge on stratified samples) |
-| **Delivery** | Deployment | Quality SLOs, error budgets, multi-window multi-burn-rate alerting, eval-gated releases |
-| **Debt** | Troubleshooting | Session forensics, incident lifecycle, hash-chained immutable audit log, AI Act Article 12 retention |
-| **Eye** | Reporting | Live reports, metadata/evidence indexes, PDFs/docs, report upload connectors, optional search sinks |
-| **SecFlow** | Security | Third-party security tools: prompt-injection detection, garak evidence, dependency/image/SBOM findings, security gate signals |
+## Data flow
 
-The modules are separate systems bound by one contract: the versioned protobuf schema in [`schema/`](schema/). Integration writes it, Delivery reads it to gate, Debt queries it forever, Eye reports on it; SecFlow annotates it with optional security findings. A change that touches two modules without going through the schema is a bug in the change.
-
-In the autonomous-ops loop, those same roles stay intact:
-
-- **Integration** is the integration surface for live operational signals: OTLP ingest, stream consumers, eval workers, and the feed that later powers cloudops/devops automation.
-- **Delivery** is the deployment decision layer: SLO math, error budgets, release gates, dependency/library validation signals, and CI readiness checks.
-- **Debt** is the troubleshooting and evidence layer: session forensics, incidents, audit records, diagnosis support, and scoring that determines whether proposed interventions are safe or need human approval.
-- **Eye** is the reporting and monitor layer: it creates live reports, searchable evidence, PDFs/docs, and customer document-system exports.
-- **SecFlow** is optional security assistance: prompt-injection detection, dependency/image findings, security gate signals, and third-party DevSecOps tooling that can be omitted without breaking the core loop.
-
-## Architecture in one paragraph
-
-Spans arrive over OTLP gRPC, buffer through Redpanda, and land in ClickHouse as narrow metadata rows — full prompt/completion payloads, command transcripts, and large artifacts live in object storage or customer log systems behind references. The unit of analysis is the **session with a goal-level outcome**, not the request: agent failures are multi-step causal chains and the data model has to admit that. Eval scores are a separate stream joined at query time, each stamped with `evaluator_version`, because judges drift exactly like the systems they judge. Delivery rolls scores into SLIs, tracks the error budget, and gates deploys; Debt keeps the forensic and audit trail; Integration supplies the live stream; Eye can generate reports and SecFlow can add security findings.
+1. Spans arrive over OTLP gRPC and buffer through Redpanda.
+2. Consumers land narrow metadata rows in ClickHouse; payloads go to object storage behind references.
+3. Eval workers score sessions on the tiered schedule; scores stream separately, stamped with `evaluator_version`.
+4. Delivery joins scores into SLIs, tracks error budgets, and gates releases.
+5. Debt records incidents and the hash-chained audit trail; Eye generates reports; SecFlow attaches security findings.
 
 ## Quickstart (dev)
 
@@ -76,39 +79,38 @@ git clone <repo-url> && cd urlog
 docker compose -f deploy/docker-compose.dev.yml up   # ClickHouse + Redpanda + otel-collector
 ```
 
-Point any OTel GenAI-instrumented app (OpenLLMetry, OpenInference) at `localhost:4317` and spans start flowing.
+Point any OTel GenAI-instrumented app at `localhost:4317`.
 
-## Default deployment
+## Deployment
 
-Urlog itself runs on Kubernetes by default through Kustomize:
+Default target is Kubernetes via Kustomize:
 
 ```bash
 kubectl apply -k deploy/kubernetes/overlays/k3s
 ```
 
-The Urlog services are stateless `Deployment` resources: `urlog-api`, `urlog-worker`, and `urlog-operator`. Stateful components such as Redpanda, ClickHouse, OpenSearch, and object storage are dependencies, not local pod state for Urlog.
+Urlog services are stateless `Deployment` resources: `urlog-api`, `urlog-worker`, `urlog-operator`. Redpanda, ClickHouse, OpenSearch, and object storage are external dependencies, not pod-local state.
 
 ## Repository layout
 
 ```
-bootstrap/ first-time install contracts, secret backend catalog, and target examples
+bootstrap/ first-time install contracts, secret backend catalog, target examples
 docs/      design notes and repository conventions
 internal/  small tested Go packages used by commands and services
-modules/   product module docs, contracts, and static concept pages
-deploy/    Kustomize install, observability sketches, and later packaged deployments
+modules/   product module docs, contracts, static concept pages
+schema/    versioned protobuf contracts (buf)
+deploy/    Kustomize install, observability sketches, packaged deployments
 examples/  ForgeBoard PaaS sample system
 learning/  tutorial tracks for Phase 0 learning
 ```
 
-See [`docs/repo-layout.md`](docs/repo-layout.md) before adding new top-level folders.
+See [`docs/repo-layout.md`](docs/repo-layout.md) before adding top-level folders.
 
-## Samples
-
-Open [index.html](index.html) for the current static sample index. It links to Integration, Delivery, Debt, Eye, SecFlow, ForgeBoard, and the Integration learning track.
+[index.html](index.html) links to the static sample pages for each module, ForgeBoard, and the Integration learning track.
 
 ## Status
 
-Pre-alpha. Design partner #0 is a production LangGraph retrieval system. Follow `ROADMAP.md` for the phase plan and `LOG.md` for the daily build record.
+Pre-alpha. Design partner #0 is a production LangGraph retrieval system. `ROADMAP.md` holds the phase plan; `LOG.md` holds the daily build record.
 
 ## The name
 
