@@ -1,6 +1,6 @@
 # Eye Reporting Architecture
 
-Eye turns ForgeBoard operational metadata and evidence references into reports.
+Eye turns Urlog operational metadata and evidence references into reports.
 
 Eye is not a raw log collector. Raw application logs, full LLM payloads, and large command transcripts should stay in dedicated log systems or object storage. Eye stores compact metadata and links to evidence.
 

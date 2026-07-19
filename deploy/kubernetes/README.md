@@ -8,15 +8,18 @@ The Urlog control plane is stateless:
 - `urlog-worker`: Integration/Delivery/Debt/Eye worker execution.
 - `urlog-operator`: Kubernetes controller for future CRDs and cluster-local reconciliation.
 
-State belongs outside these pods:
+State and dependencies belong outside these pods:
 
 - Redpanda for event streams.
-- ClickHouse for analytical/evidence records.
-- OpenSearch for report/evidence search.
-- Object storage for reports, bundles, PDFs, and large artifacts.
+- ClickHouse for compact analytical metadata/evidence records.
+- Object storage for reports, bundles, PDFs, transcripts, sampled payloads, and large artifacts.
+- Optional OpenSearch for report/evidence search.
+- Optional Loki or customer log systems for raw log collection.
 - A secret backend for all sensitive values.
 
 Urlog services should be `Deployment` resources. Use `StatefulSet` only for self-hosted dependencies such as Redpanda, ClickHouse, OpenSearch, or object storage.
+
+Urlog is not a raw log collector. It stores operational metadata and references; high-volume application logs should stay in a dedicated logging system.
 
 ## Install
 
@@ -68,4 +71,3 @@ The default image names are placeholders until the Go binaries are implemented:
 - `ghcr.io/khbarkar/urlog-api:dev`
 - `ghcr.io/khbarkar/urlog-worker:dev`
 - `ghcr.io/khbarkar/urlog-operator:dev`
-

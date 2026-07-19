@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package urlog.v0;
+
+option go_package = "github.com/khbarkar/urlog/schema/gen/go/urlog/v0;urlogv0";
+
+enum EvalTier {
+  EVAL_TIER_UNSPECIFIED = 0;
+  EVAL_TIER_CLASSIFIER = 1;
+  EVAL_TIER_JUDGE = 2;
+  EVAL_TIER_HUMAN = 3;
+}
+
+message EvalScore {
+  bytes target_id = 1;
+  string metric = 2;
+  double score = 3;
+  EvalTier tier = 4;
+  string evaluator_version = 5;
+}

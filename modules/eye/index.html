@@ -11,7 +11,7 @@
 <body>
 <header class="topbar">
   <a class="repo-link" href="https://github.com/khbarkar/urlog" aria-label="Open Urlog repository">
-    <img src="../logo.png" alt="">
+    <img src="../../docs/assets/logo.png" alt="">
     <span>Urlog</span>
   </a>
 </header>
@@ -29,7 +29,7 @@
     <div class="hero">
       <div class="tag">Operational board</div>
       <div class="headline">Watch the stream and write the record.</div>
-      <p>Eye consumes Redpanda report topics, gathers evidence from Integration, Delivery, Debt, and SecFlow, then produces searchable live reports, PDFs, document packets, and machine-readable outputs.</p>
+      <p>Eye consumes metadata events, gathers evidence references from Integration, Delivery, Debt, and SecFlow, then produces searchable reports, PDFs, document packets, and machine-readable outputs. It is not a raw log collector.</p>
       <div class="actions"><button id="report">Generate report</button><button id="security">Attach SecFlow summary</button></div>
     </div>
     <section class="wide" id="reports">
@@ -49,13 +49,13 @@
       </div>
     </section>
     <section class="grid" id="storage">
-      <div class="card"><h2>ClickHouse</h2><p>Canonical analytical and evidence store.</p></div>
-      <div class="card"><h2>OpenSearch</h2><p>Default open-source report and evidence index for air-gapped buyers.</p></div>
-      <div class="card"><h2>Object Storage</h2><p>PDFs, document packets, and large immutable artifacts.</p></div>
+      <div class="card"><h2>ClickHouse</h2><p>Canonical metadata and evidence-reference store.</p></div>
+      <div class="card"><h2>Object Storage</h2><p>PDFs, command transcripts, sampled payloads, and large artifacts.</p></div>
+      <div class="card"><h2>Optional Search</h2><p>OpenSearch, Elasticsearch, Loki, or cloud logging can stay customer-owned.</p></div>
     </section>
     <section class="wide" id="exports">
       <div class="card"><h2>Document Output</h2><p>Eye creates PDFs and structured packets for humans, APIs, audit trails, and customer document systems where the plugged provider supports upload.</p></div>
-      <div class="card"><h2>Optional Loki</h2><p>Loki fits customers already standardized on Prometheus and Grafana for raw logs.</p></div>
+      <div class="card"><h2>Raw Logs</h2><p>Use dedicated log systems for volume. Eye stores references and report metadata.</p></div>
     </section>
   </section>
 </main>

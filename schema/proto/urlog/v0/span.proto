@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package urlog.v0;
+
+option go_package = "github.com/khbarkar/urlog/schema/gen/go/urlog/v0;urlogv0";
+
+enum SpanKind {
+  SPAN_KIND_UNSPECIFIED = 0;
+  SPAN_KIND_LLM_CALL = 1;
+  SPAN_KIND_TOOL_CALL = 2;
+  SPAN_KIND_RETRIEVAL = 3;
+  SPAN_KIND_AGENT_STEP = 4;
+}
+
+message Span {
+  bytes span_id = 1;
+  bytes parent_span_id = 2;
+  bytes session_id = 3;
+  SpanKind kind = 4;
+  map<string, string> gen_ai_attributes = 5;
+  bytes payload_ref = 6;
+}
